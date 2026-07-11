@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Noor — Quran with Translation Audio</title>
+<meta name="theme-color" content="#152E2B">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Literata:opsz,wght@18..144,400;18..144,500;18..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B;
+    --ink-soft:#2C4A45;
+    --parchment:#FBF7EE;
+    --parchment-dim:#F2ECDD;
+    --gold:#A9803F;
+    --gold-soft:#D9C08F;
+    --maroon:#6E2430;
+    --line:#DFD5B8;
+    --card-bg:transparent;
+    --en-color:#3B3229;
+    --ar-scale:1;
+    --en-scale:1;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D;
+    --ink-soft:#16302C;
+    --parchment:#171512;
+    --parchment-dim:#211D17;
+    --gold:#D9B26B;
+    --gold-soft:#E7CE9C;
+    --line:#3A3327;
+    --en-color:#E7E0D2;
+  }
+  [data-theme="dark"] .ar-text{ color:#F2ECDD; }
+  [data-theme="dark"] select{ color:#171512; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    transition:background 0.25s ease, color 0.25s ease;
+  }
+  /* ---------- Header ---------- */
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment);
+    padding:22px 20px 18px;
+    position:relative;
+    overflow:hidden;
+  }
+  [data-theme="dark"] header{ color:#F2ECDD; }
+  header::after{
+    content:"";
+    position:absolute;
+    right:-40px; top:-40px;
+    width:160px; height:160px;
+    border:1.5px solid rgba(217,192,143,0.25);
+    transform:rotate(45deg);
+    border-radius:22%;
+  }
+  .brand-row{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Amiri',serif; font-weight:700; font-size:1.5rem;
+    letter-spacing:0.5px;
+  }
+  .brand .mark{
+    width:30px;height:30px;
+    display:inline-flex;align-items:center;justify-content:center;
+    border:1.5px solid var(--gold-soft);
+    transform:rotate(45deg);
+    border-radius:22%;
+    font-family:'Inter',sans-serif;
+    font-size:0.7rem; font-weight:700;
+    color:var(--gold-soft);
+  }
+  .brand .mark span{ transform:rotate(-45deg); }
+  .tagline{ font-size:0.78rem; opacity:0.65; margin-top:4px; letter-spacing:0.3px;}
+
+  .settings-btn{
+    background:rgba(251,247,238,0.08);
+    border:1px solid rgba(217,192,143,0.35);
+    color:inherit;
+    width:38px; height:38px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; flex:none;
+  }
+  .settings-btn svg{ width:18px; height:18px; }
+  .settings-btn:focus-visible{ outline:2px solid var(--gold-soft); outline-offset:2px; }
+
+  .surah-picker{
+    margin-top:16px;
+    display:flex; gap:8px; align-items:center;
+  }
+  select{
+    flex:1;
+    appearance:none;
+    background:rgba(251,247,238,0.08);
+    border:1px solid rgba(217,192,143,0.35);
+    color:var(--parchment);
+    padding:10px 12px;
+    border-radius:10px;
+    font-family:'Inter',sans-serif;
+    font-size:0.92rem;
+  }
+  select:focus-visible{ outline:2px solid var(--gold-soft); outline-offset:2px; }
+  option{ color:#111; }
+
+  .settings-panel{
+    display:none;
+    margin-top:12px;
+    background:rgba(251,247,238,0.06);
+    border:1px solid rgba(217,192,143,0.25);
+    border-radius:12px;
+    padding:14px;
+  }
+  .settings-panel.open{ display:block; }
+  .settings-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px; margin-bottom:12px;
+  }
+  .settings-row:last-child{ margin-bottom:0; }
+  .settings-row label{ font-size:0.78rem; opacity:0.8; flex:none; }
+  .settings-row select{ font-size:0.82rem; padding:7px 10px; }
+  .stepper{ display:flex; align-items:center; gap:8px; }
+  .stepper button{
+    width:30px; height:30px; border-radius:8px; border:1px solid rgba(217,192,143,0.35);
+    background:rgba(251,247,238,0.08); color:inherit; cursor:pointer; font-size:0.85rem;
+  }
+  .stepper button:focus-visible{ outline:2px solid var(--gold-soft); }
+  .theme-switch{
+    display:flex; background:rgba(251,247,238,0.08); border-radius:10px; padding:3px; gap:2px;
+  }
+  .theme-switch button{
+    background:none; border:none; color:inherit; opacity:0.55;
+    font-size:0.75rem; font-weight:600; padding:6px 12px; border-radius:8px; cursor:pointer;
+  }
+  .theme-switch button.active{ background:var(--gold); color:var(--ink); opacity:1; }
+
+  /* ---------- Main ---------- */
+  main{ max-width:640px; margin:0 auto; padding:18px 16px 150px; }
+
+  #status{
+    text-align:center; padding:40px 20px; color:var(--ink-soft); font-size:0.9rem;
+  }
+  #resumeBanner{
+    display:none;
+    background:var(--parchment-dim);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 14px;
+    font-size:0.82rem;
+    margin-bottom:16px;
+    align-items:center; justify-content:space-between; gap:10px;
+  }
+  #resumeBanner button{
+    background:var(--gold); color:var(--ink); border:none; border-radius:8px;
+    padding:6px 12px; font-size:0.78rem; font-weight:600; cursor:pointer; flex:none;
+  }
+
+  .surah-title{ text-align:center; margin:6px 0 22px; }
+  .surah-title .ar{ font-family:'Amiri',serif; font-size:2rem; color:var(--ink); }
+  .surah-title .en{ font-size:0.85rem; color:var(--ink-soft); letter-spacing:0.4px; margin-top:2px;}
+  .surah-title .meta{ font-size:0.72rem; color:var(--gold); margin-top:6px; text-transform:uppercase; letter-spacing:1px;}
+
+  .verse{
+    padding:22px 4px;
+    border-bottom:1px solid var(--line);
+    transition:background 0.3s ease;
+    scroll-margin-top:16px;
+  }
+  .verse.active{
+    background:var(--parchment-dim);
+    border-radius:10px;
+    padding-left:12px; padding-right:12px;
+  }
+  .verse-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .medallion{
+    width:30px; height:30px; flex:none; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.68rem; font-weight:700; color:var(--gold);
+    font-family:'Inter',sans-serif;
+  }
+  .medallion::before{ content:""; position:absolute; inset:0; border:1.3px solid var(--gold); border-radius:30%; }
+  .medallion::after{ content:""; position:absolute; inset:0; border:1.3px solid var(--gold); border-radius:30%; transform:rotate(45deg); }
+  .verse-tools{ margin-left:auto; display:flex; gap:6px; }
+  .icon-btn{
+    background:none; border:none; cursor:pointer;
+    color:var(--ink-soft); padding:6px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:hover{ background:var(--parchment-dim); color:var(--ink); }
+  .icon-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:1px; }
+  .icon-btn svg{ width:17px; height:17px; }
+
+  .ar-text{
+    font-family:'Amiri',serif;
+    font-size:calc(1.7rem * var(--ar-scale));
+    line-height:2.35;
+    text-align:right;
+    direction:rtl;
+    color:var(--ink);
+  }
+  .en-text{
+    font-family:'Literata',serif;
+    font-size:calc(1rem * var(--en-scale));
+    line-height:1.75;
+    color:var(--en-color);
+    margin-top:12px;
+  }
+  .en-text .vn{ color:var(--gold); font-weight:600; font-size:0.85em; }
+
+  .dramatize-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:14px; background:none; border:1px solid var(--line);
+    color:var(--maroon); font-family:'Inter',sans-serif; font-size:0.74rem; font-weight:600;
+    padding:7px 12px; border-radius:20px; cursor:pointer;
+  }
+  .dramatize-btn:hover{ background:var(--parchment-dim); }
+  .dramatize-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:1px; }
+  .dramatize-btn svg{ width:14px; height:14px; flex:none; }
+  .dramatize-btn.loading svg{ animation:spin 0.9s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .narration-box{
+    margin-top:12px; padding:14px 16px;
+    background:var(--parchment-dim);
+    border-left:3px solid var(--maroon);
+    border-radius:4px 10px 10px 4px;
+    font-family:'Literata',serif; font-style:italic;
+    font-size:calc(0.94rem * var(--en-scale));
+    line-height:1.75; color:var(--en-color);
+  }
+  .narration-label{
+    font-family:'Inter',sans-serif; font-style:normal;
+    font-size:0.65rem; text-transform:uppercase; letter-spacing:1px;
+    color:var(--maroon); font-weight:700; margin-bottom:7px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .narration-disclaimer{
+    font-family:'Inter',sans-serif; font-style:normal;
+    font-size:0.68rem; opacity:0.6; margin-top:10px; line-height:1.5;
+  }
+
+  /* ---------- Player bar ---------- */
+  .player{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--ink);
+    color:var(--parchment);
+    box-shadow:0 -6px 20px rgba(0,0,0,0.18);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+  [data-theme="dark"] .player{ color:#F2ECDD; }
+  .player-inner{ max-width:640px; margin:0 auto; }
+  .player-row1{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .player-info{ flex:1; min-width:0; }
+  .player-info .p-title{ font-size:0.82rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .player-info .p-sub{ font-size:0.7rem; opacity:0.6; margin-top:1px;}
+  .transport{ display:flex; align-items:center; gap:6px; }
+  .transport button{
+    background:var(--gold); color:var(--ink); border:none; border-radius:50%;
+    width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .transport button.ghost{ background:transparent; color:inherit; width:32px; height:32px; }
+  .transport button:focus-visible{ outline:2px solid var(--gold-soft); outline-offset:2px; }
+  .transport svg{ width:18px; height:18px; }
+
+  .mode-toggle{ display:flex; background:rgba(251,247,238,0.08); border-radius:10px; padding:3px; gap:2px; }
+  .mode-toggle button{
+    flex:1; background:none; border:none; color:inherit;
+    opacity:0.55; font-size:0.68rem; font-family:'Inter',sans-serif; font-weight:600;
+    padding:7px 2px; border-radius:8px; cursor:pointer; letter-spacing:0.2px;
+  }
+  .mode-toggle button.active{ background:var(--gold); color:var(--ink); opacity:1; }
+  .mode-toggle button:focus-visible{ outline:2px solid var(--gold-soft); outline-offset:1px; }
+
+  .progress-track{ height:3px; background:rgba(251,247,238,0.15); border-radius:3px; margin-top:10px; overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--gold); width:0%; transition:width 0.2s linear; }
+
+  #installBtn{
+    display:none;
+    margin-top:10px; width:100%;
+    background:var(--gold); color:var(--ink); border:none; border-radius:10px;
+    padding:10px; font-weight:600; font-size:0.82rem; cursor:pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce){ .progress-fill, .verse{ transition:none; } }
+  .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-row">
+    <div class="brand"><span class="mark"><span>ن</span></span> Noor</div>
+    <button class="settings-btn" id="settingsBtn" aria-label="Settings" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </div>
+  <div class="tagline">Recitation &amp; translation, read and heard together</div>
+
+  <div class="surah-picker">
+    <label class="visually-hidden" for="surahSelect">Choose a surah</label>
+    <select id="surahSelect" aria-label="Choose a surah"><option>Loading surah list…</option></select>
+  </div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-row">
+      <label for="reciterSelect">Reciter</label>
+      <select id="reciterSelect"></select>
+    </div>
+    <div class="settings-row">
+      <label for="translationSelect">Translation</label>
+      <select id="translationSelect"></select>
+    </div>
+    <div class="settings-row">
+      <label>Arabic size</label>
+      <div class="stepper">
+        <button id="arSmaller" aria-label="Smaller Arabic text">A−</button>
+        <button id="arBigger" aria-label="Larger Arabic text">A+</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <label>Translation size</label>
+      <div class="stepper">
+        <button id="enSmaller" aria-label="Smaller translation text">A−</button>
+        <button id="enBigger" aria-label="Larger translation text">A+</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <label>Appearance</label>
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button data-theme="light" class="active">Light</button>
+        <button data-theme="dark">Dark</button>
+      </div>
+    </div>
+    <button id="installBtn">Install Noor to home screen</button>
+  </div>
+</header>
+
+<main>
+  <div id="status">Loading surah list…</div>
+  <div id="resumeBanner">
+    <span id="resumeText"></span>
+    <button id="resumeBtn">Resume</button>
+  </div>
+  <div class="surah-title" id="surahTitle" style="display:none">
+    <div class="ar" id="surahTitleAr"></div>
+    <div class="en" id="surahTitleEn"></div>
+    <div class="meta" id="surahTitleMeta"></div>
+  </div>
+  <div id="verseList"></div>
+</main>
+
+<div class="player" id="player" style="display:none">
+  <div class="player-inner">
+    <div class="player-row1">
+      <div class="transport">
+        <button class="ghost" id="prevBtn" aria-label="Previous verse">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button id="playBtn" aria-label="Play">
+          <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button class="ghost" id="nextBtn" aria-label="Next verse">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 6l8.5 6L6 18z"/></svg>
+        </button>
+      </div>
+      <div class="player-info">
+        <div class="p-title" id="pTitle">Select a verse</div>
+        <div class="p-sub" id="pSub">—</div>
+      </div>
+    </div>
+    <div class="mode-toggle" role="group" aria-label="Playback language">
+      <button data-mode="ar" class="active">Arabic</button>
+      <button data-mode="en">English</button>
+      <button data-mode="both">Both</button>
+      <button data-mode="dramatize">Tafsir</button>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Config ----------
+  var META_URL = "https://api.alquran.cloud/v1/surah";
+  var arEdition = "quran-uthmani";
+  var CACHE_PREFIX = "noor_cache_v1_";
+  var PREF_KEY = "noor_prefs_v1";
+  var POS_KEY = "noor_position_v1";
+  var NARRATION_CACHE_PREFIX = "noor_narration_v1_";
+  var NARRATION_DISCLAIMER = "AI-generated narration for reflection — not a verified scholarly tafsir.";
+
+  var RECITERS = [
+    { id: "ar.alafasy", name: "Mishary Alafasy" },
+    { id: "ar.abdulbasitmurattal", name: "Abdul Basit (Murattal)" },
+    { id: "ar.husary", name: "Mahmoud Al-Husary" },
+    { id: "ar.minshawi", name: "Minshawi" }
+  ];
+  var TRANSLATIONS = [
+    { id: "en.sahih", name: "Saheeh International" },
+    { id: "en.yusufali", name: "Yusuf Ali" },
+    { id: "en.pickthall", name: "Pickthall" },
+    { id: "en.hilali", name: "Hilali & Khan" }
+  ];
+
+  // ---------- State ----------
+  var state = {
+    surahNumber: 1,
+    verses: [],
+    mode: "ar",
+    isPlaying: false,
+    currentIndex: -1,
+    audioEl: new Audio(),
+    voices: [],
+    reciter: RECITERS[0].id,
+    translation: TRANSLATIONS[0].id,
+    audioUnlocked: false,
+    deferredInstallPrompt: null,
+    wakeLock: null
+  };
+
+  var els = {
+    select: document.getElementById("surahSelect"),
+    status: document.getElementById("status"),
+    verseList: document.getElementById("verseList"),
+    surahTitle: document.getElementById("surahTitle"),
+    surahTitleAr: document.getElementById("surahTitleAr"),
+    surahTitleEn: document.getElementById("surahTitleEn"),
+    surahTitleMeta: document.getElementById("surahTitleMeta"),
+    player: document.getElementById("player"),
+    playBtn: document.getElementById("playBtn"),
+    playIcon: document.getElementById("playIcon"),
+    prevBtn: document.getElementById("prevBtn"),
+    nextBtn: document.getElementById("nextBtn"),
+    pTitle: document.getElementById("pTitle"),
+    pSub: document.getElementById("pSub"),
+    progressFill: document.getElementById("progressFill"),
+    modeButtons: document.querySelectorAll(".mode-toggle button"),
+    settingsBtn: document.getElementById("settingsBtn"),
+    settingsPanel: document.getElementById("settingsPanel"),
+    reciterSelect: document.getElementById("reciterSelect"),
+    translationSelect: document.getElementById("translationSelect"),
+    arSmaller: document.getElementById("arSmaller"),
+    arBigger: document.getElementById("arBigger"),
+    enSmaller: document.getElementById("enSmaller"),
+    enBigger: document.getElementById("enBigger"),
+    themeButtons: document.querySelectorAll(".theme-switch button"),
+    resumeBanner: document.getElementById("resumeBanner"),
+    resumeText: document.getElementById("resumeText"),
+    resumeBtn: document.getElementById("resumeBtn"),
+    installBtn: document.getElementById("installBtn")
+  };
+
+  // ---------- Utilities ----------
+  function cacheGet(key){
+    try{ var raw = localStorage.getItem(CACHE_PREFIX + key); return raw ? JSON.parse(raw) : null; }
+    catch(e){ return null; }
+  }
+  function cacheSet(key, value){
+    try{ localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(value)); }catch(e){}
+  }
+  function fetchJson(url){
+    return fetch(url).then(function(r){
+      if(!r.ok) throw new Error("Request failed: " + url);
+      return r.json();
+    });
+  }
+  function loadPrefs(){
+    try{
+      var p = JSON.parse(localStorage.getItem(PREF_KEY) || "{}");
+      if(p.reciter) state.reciter = p.reciter;
+      if(p.translation) state.translation = p.translation;
+      if(p.arScale) document.documentElement.style.setProperty("--ar-scale", p.arScale);
+      if(p.enScale) document.documentElement.style.setProperty("--en-scale", p.enScale);
+      if(p.theme) document.body.setAttribute("data-theme", p.theme);
+    }catch(e){}
+  }
+  function savePrefs(){
+    var p = {
+      reciter: state.reciter,
+      translation: state.translation,
+      arScale: getComputedStyle(document.documentElement).getPropertyValue("--ar-scale").trim() || "1",
+      enScale: getComputedStyle(document.documentElement).getPropertyValue("--en-scale").trim() || "1",
+      theme: document.body.getAttribute("data-theme") || "light"
+    };
+    try{ localStorage.setItem(PREF_KEY, JSON.stringify(p)); }catch(e){}
+  }
+  function savePosition(){
+    try{ localStorage.setItem(POS_KEY, JSON.stringify({ surah: state.surahNumber, ayah: state.currentIndex })); }catch(e){}
+  }
+  function loadPosition(){
+    try{ return JSON.parse(localStorage.getItem(POS_KEY) || "null"); }catch(e){ return null; }
+  }
+
+  // ---------- Settings UI ----------
+  function populateSettingsSelects(){
+    els.reciterSelect.innerHTML = "";
+    RECITERS.forEach(function(r){
+      var o = document.createElement("option"); o.value = r.id; o.textContent = r.name;
+      els.reciterSelect.appendChild(o);
+    });
+    els.reciterSelect.value = state.reciter;
+
+    els.translationSelect.innerHTML = "";
+    TRANSLATIONS.forEach(function(t){
+      var o = document.createElement("option"); o.value = t.id; o.textContent = t.name;
+      els.translationSelect.appendChild(o);
+    });
+    els.translationSelect.value = state.translation;
+
+    var theme = document.body.getAttribute("data-theme") || "light";
+    els.themeButtons.forEach(function(b){
+      b.classList.toggle("active", b.getAttribute("data-theme") === theme);
+    });
+  }
+
+  els.settingsBtn.addEventListener("click", function(){
+    var open = els.settingsPanel.classList.toggle("open");
+    els.settingsBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  els.reciterSelect.addEventListener("change", function(){
+    state.reciter = els.reciterSelect.value;
+    savePrefs();
+    loadSurah(state.surahNumber, true); // reload with new reciter/translation, forced refetch
+  });
+  els.translationSelect.addEventListener("change", function(){
+    state.translation = els.translationSelect.value;
+    savePrefs();
+    loadSurah(state.surahNumber, true);
+  });
+
+  function stepScale(varName, delta, min, max){
+    var cur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue(varName)) || 1;
+    var next = Math.min(max, Math.max(min, +(cur + delta).toFixed(2)));
+    document.documentElement.style.setProperty(varName, next);
+    savePrefs();
+  }
+  els.arSmaller.addEventListener("click", function(){ stepScale("--ar-scale", -0.1, 0.7, 1.6); });
+  els.arBigger.addEventListener("click", function(){ stepScale("--ar-scale", 0.1, 0.7, 1.6); });
+  els.enSmaller.addEventListener("click", function(){ stepScale("--en-scale", -0.1, 0.7, 1.6); });
+  els.enBigger.addEventListener("click", function(){ stepScale("--en-scale", 0.1, 0.7, 1.6); });
+
+  els.themeButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.body.setAttribute("data-theme", btn.getAttribute("data-theme"));
+      els.themeButtons.forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      savePrefs();
+    });
+  });
+
+  // ---------- Load surah list ----------
+  function loadSurahList(){
+    var cached = cacheGet("surah_list");
+    if(cached){ populateSelect(cached); return; }
+    fetchJson(META_URL).then(function(json){
+      cacheSet("surah_list", json.data);
+      populateSelect(json.data);
+    }).catch(function(err){
+      els.status.textContent = "Could not load surah list. Check your connection and reload.";
+      console.error(err);
+    });
+  }
+
+  function populateSelect(list){
+    els.select.innerHTML = "";
+    list.forEach(function(s){
+      var opt = document.createElement("option");
+      opt.value = s.number;
+      opt.textContent = s.number + ". " + s.englishName + " (" + s.name + ")";
+      els.select.appendChild(opt);
+    });
+
+    var pos = loadPosition();
+    if(pos && pos.surah){
+      els.select.value = pos.surah;
+      state.surahNumber = pos.surah;
+      var listItem = list.find(function(s){ return s.number === pos.surah; });
+      if(listItem && pos.ayah >= 0){
+        els.resumeBanner.style.display = "flex";
+        els.resumeText.textContent = "Resume " + listItem.englishName + ", verse " + (pos.ayah + 1) + "?";
+        els.resumeBtn.onclick = function(){
+          els.resumeBanner.style.display = "none";
+          loadSurah(pos.surah, false, pos.ayah);
+        };
+      }
+    } else {
+      els.select.value = state.surahNumber;
+    }
+    loadSurah(state.surahNumber);
+  }
+
+  // ---------- Load a surah's verses ----------
+  function loadSurah(num, forceRefresh, resumeAyahIndex){
+    stopPlayback();
+    state.surahNumber = num;
+    state.currentIndex = -1;
+    els.status.style.display = "block";
+    els.status.textContent = "Loading surah " + num + "…";
+    els.surahTitle.style.display = "none";
+    els.verseList.innerHTML = "";
+    els.player.style.display = "none";
+
+    var cacheKey = "surah_" + num + "_" + state.reciter + "_" + state.translation;
+    var cached = !forceRefresh && cacheGet(cacheKey);
+    if(cached){ renderSurah(cached, resumeAyahIndex); return; }
+
+    var arUrl = "https://api.alquran.cloud/v1/surah/" + num + "/" + arEdition;
+    var enUrl = "https://api.alquran.cloud/v1/surah/" + num + "/" + state.translation;
+    var audioUrl = "https://api.alquran.cloud/v1/surah/" + num + "/" + state.reciter;
+
+    Promise.all([fetchJson(arUrl), fetchJson(enUrl), fetchJson(audioUrl)])
+      .then(function(results){
+        var arData = results[0].data, enData = results[1].data, audioData = results[2].data;
+        var verses = arData.ayahs.map(function(a, i){
+          return {
+            number: a.numberInSurah,
+            ar: a.text,
+            en: (enData.ayahs[i] && enData.ayahs[i].text) || "",
+            audioUrl: (audioData.ayahs[i] && audioData.ayahs[i].audio) || ""
+          };
+        });
+        var payload = {
+          number: arData.number, name: arData.name, englishName: arData.englishName,
+          englishNameTranslation: arData.englishNameTranslation, revelationType: arData.revelationType,
+          verses: verses
+        };
+        cacheSet(cacheKey, payload);
+        renderSurah(payload, resumeAyahIndex);
+      })
+      .catch(function(err){
+        els.status.textContent = "Could not load this surah. Check your connection and try again.";
+        console.error(err);
+      });
+  }
+
+  function renderSurah(data, resumeAyahIndex){
+    state.verses = data.verses;
+    els.status.style.display = "none";
+    els.surahTitle.style.display = "block";
+    els.surahTitleAr.textContent = data.name;
+    els.surahTitleEn.textContent = data.englishName + " — " + data.englishNameTranslation;
+    els.surahTitleMeta.textContent = data.revelationType + " · " + data.verses.length + " verses";
+
+    els.verseList.innerHTML = "";
+    data.verses.forEach(function(v, idx){
+      var card = document.createElement("div");
+      card.className = "verse";
+      card.id = "verse-" + idx;
+
+      var head = document.createElement("div");
+      head.className = "verse-head";
+      var medallion = document.createElement("div");
+      medallion.className = "medallion";
+      medallion.innerHTML = "<span style='position:relative;z-index:1'>" + v.number + "</span>";
+      head.appendChild(medallion);
+
+      var tools = document.createElement("div");
+      tools.className = "verse-tools";
+      var playThis = document.createElement("button");
+      playThis.className = "icon-btn";
+      playThis.setAttribute("aria-label", "Play verse " + v.number);
+      playThis.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      playThis.addEventListener("click", function(){ unlockAudioContext(); playFromIndex(idx); });
+      tools.appendChild(playThis);
+      head.appendChild(tools);
+
+      var arText = document.createElement("div");
+      arText.className = "ar-text";
+      arText.textContent = v.ar;
+
+      var enText = document.createElement("div");
+      enText.className = "en-text";
+      enText.innerHTML = "<span class='vn'>" + v.number + ". </span>" + escapeHtml(v.en);
+
+      var dramatizeBtn = document.createElement("button");
+      dramatizeBtn.className = "dramatize-btn";
+      dramatizeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg><span>Narrate the meaning</span>';
+      dramatizeBtn.addEventListener("click", function(){ toggleNarration(idx, card, dramatizeBtn); });
+
+      card.appendChild(head);
+      card.appendChild(arText);
+      card.appendChild(enText);
+      card.appendChild(dramatizeBtn);
+      els.verseList.appendChild(card);
+    });
+
+    els.player.style.display = "block";
+    if(typeof resumeAyahIndex === "number" && resumeAyahIndex >= 0){
+      state.currentIndex = resumeAyahIndex;
+      updatePlayerInfo(resumeAyahIndex);
+    } else {
+      updatePlayerInfo(-1);
+    }
+  }
+
+  function escapeHtml(str){
+    var d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ---------- Dramatized narration (pre-written, static files, no API key) ----------
+  function narrationCacheKey(surahNum, ayahNum){
+    return NARRATION_CACHE_PREFIX + surahNum + "_" + ayahNum;
+  }
+
+  var narrationFileLoaded = null; // Promise, resolves to the full parsed narrations.json (fetched once)
+
+  function loadNarrationFile(){
+    if(narrationFileLoaded) return narrationFileLoaded;
+    narrationFileLoaded = fetch("./narrations.json")
+      .then(function(r){ if(!r.ok) throw new Error("no-file"); return r.json(); })
+      .catch(function(err){ narrationFileLoaded = null; throw err; });
+    return narrationFileLoaded;
+  }
+
+  function generateDramatization(v){
+    var key = narrationCacheKey(state.surahNumber, v.number);
+    var cached = cacheGet(key);
+    if(cached) return Promise.resolve(cached);
+
+    return loadNarrationFile().then(function(allData){
+      var surahEntry = allData[String(state.surahNumber)];
+      var narration = surahEntry && surahEntry.verses && surahEntry.verses[String(v.number)];
+      if(!narration) throw new Error("Narration not available for this verse yet");
+      cacheSet(key, narration);
+      return narration;
+    });
+  }
+
+  function toggleNarration(idx, card, btn){
+    var existing = card.querySelector(".narration-box");
+    if(existing){ existing.remove(); return; }
+
+    var v = state.verses[idx];
+    btn.classList.add("loading");
+    btn.querySelector("span").textContent = "Narrating…";
+
+    generateDramatization(v).then(function(text){
+      btn.classList.remove("loading");
+      btn.querySelector("span").textContent = "Narrate the meaning";
+      var box = document.createElement("div");
+      box.className = "narration-box";
+      box.innerHTML = "<div class='narration-label'>Dramatized meaning</div>" +
+        "<div>" + escapeHtml(text) + "</div>" +
+        "<div class='narration-disclaimer'>" + NARRATION_DISCLAIMER + "</div>";
+      btn.insertAdjacentElement("afterend", box);
+    }).catch(function(err){
+      btn.classList.remove("loading");
+      btn.querySelector("span").textContent = "Narrate the meaning";
+      var box = document.createElement("div");
+      box.className = "narration-box";
+      box.innerHTML = "<div class='narration-label'>Not written yet</div><div>The dramatized narration for this surah hasn't been added yet.</div>";
+      btn.insertAdjacentElement("afterend", box);
+      console.error(err);
+    });
+  }
+
+  // ---------- Mobile audio/TTS unlock ----------
+  // iOS/Android often require the FIRST audio.play() and speechSynthesis.speak()
+  // to originate directly inside a user gesture. We "warm up" both here, on the
+  // first tap anywhere, so later programmatic calls chained from callbacks
+  // (e.g. TTS onend -> audio.play()) are allowed to proceed.
+  function unlockAudioContext(){
+    if(state.audioUnlocked) return;
+    state.audioUnlocked = true;
+    try{
+      state.audioEl.muted = true;
+      state.audioEl.src = "data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgCzs7Ozs7Ozs7Ozs7Ozs7Ozs7Pz8/Pz8/Pz8/Pz8/Pz////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYCM/e0AAAAAAAAAAAAAAAAAAAA";
+      state.audioEl.play().then(function(){
+        state.audioEl.pause();
+        state.audioEl.muted = false;
+      }).catch(function(){ state.audioEl.muted = false; });
+    }catch(e){}
+    if("speechSynthesis" in window){
+      try{
+        var warm = new SpeechSynthesisUtterance(" ");
+        warm.volume = 0;
+        window.speechSynthesis.speak(warm);
+      }catch(e){}
+    }
+  }
+  document.body.addEventListener("pointerdown", unlockAudioContext, { once: true });
+
+  // ---------- Screen wake lock (keep playback alive while screen is on) ----------
+  function requestWakeLock(){
+    if(!("wakeLock" in navigator)) return;
+    navigator.wakeLock.request("screen").then(function(lock){
+      state.wakeLock = lock;
+      lock.addEventListener("release", function(){ state.wakeLock = null; });
+    }).catch(function(){ /* ignore - not fatal, just means screen may sleep */ });
+  }
+  function releaseWakeLock(){
+    if(state.wakeLock){ state.wakeLock.release().catch(function(){}); state.wakeLock = null; }
+  }
+  // Re-acquire the lock if the tab regains visibility mid-playback (locks are
+  // auto-released when a tab is hidden, e.g. switching apps briefly).
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "visible" && state.isPlaying) requestWakeLock();
+  });
+
+  // ---------- Media Session (lock screen / notification controls) ----------
+  function updateMediaSession(idx){
+    if(!("mediaSession" in navigator)) return;
+    var v = state.verses[idx];
+    if(!v) return;
+    var modeLabel = { ar: "Recitation", en: "Translation", both: "Recitation & translation", dramatize: "Recitation & Tafsir narration" }[state.mode] || "";
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: "Verse " + v.number + " · " + (els.surahTitleEn.textContent || ""),
+      artist: modeLabel,
+      album: "Noor"
+    });
+    navigator.mediaSession.playbackState = state.isPlaying ? "playing" : "paused";
+  }
+  if("mediaSession" in navigator){
+    navigator.mediaSession.setActionHandler("play", function(){ togglePlay(); });
+    navigator.mediaSession.setActionHandler("pause", function(){ togglePlay(); });
+    navigator.mediaSession.setActionHandler("previoustrack", function(){ els.prevBtn.click(); });
+    navigator.mediaSession.setActionHandler("nexttrack", function(){ els.nextBtn.click(); });
+  }
+
+  // ---------- Playback engine ----------
+  function updatePlayerInfo(idx){
+    if(idx < 0){
+      els.pTitle.textContent = "Select a verse";
+      els.pSub.textContent = "—";
+      return;
+    }
+    var v = state.verses[idx];
+    els.pTitle.textContent = "Verse " + v.number;
+    els.pSub.textContent = v.en.length > 60 ? v.en.slice(0, 60) + "…" : v.en;
+    els.progressFill.style.width = ((idx + 1) / state.verses.length * 100) + "%";
+    updateMediaSession(idx);
+
+    document.querySelectorAll(".verse.active").forEach(function(el){ el.classList.remove("active"); });
+    var activeEl = document.getElementById("verse-" + idx);
+    if(activeEl){
+      activeEl.classList.add("active");
+      activeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    savePosition();
+  }
+
+  function setPlayIcon(playing){
+    els.playIcon.innerHTML = playing
+      ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>'
+      : '<path d="M8 5v14l11-7z"/>';
+    els.playBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
+  }
+
+  function playFromIndex(idx){
+    if(idx < 0 || idx >= state.verses.length) return;
+    state.currentIndex = idx;
+    state.isPlaying = true;
+    setPlayIcon(true);
+    requestWakeLock();
+    updatePlayerInfo(idx);
+    playCurrentVerse();
+  }
+
+  function playCurrentVerse(){
+    var v = state.verses[state.currentIndex];
+    if(!v){ stopPlayback(); return; }
+    if(state.mode === "ar"){
+      playArabicAudio(v, advanceOrStop);
+    } else if(state.mode === "en"){
+      speakEnglish(v, advanceOrStop);
+    } else if(state.mode === "dramatize"){
+      playArabicAudio(v, function(){ speakDramatized(v, advanceOrStop); });
+    } else {
+      playArabicAudio(v, function(){ speakEnglish(v, advanceOrStop); });
+    }
+  }
+
+  function speakText(text, onDone){
+    if(!("speechSynthesis" in window)){ onDone(); return; }
+    window.speechSynthesis.cancel();
+    var utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 0.92;
+    utt.pitch = 1.0;
+    var preferred = state.voices.find(function(voice){ return /en-(US|GB)/.test(voice.lang); });
+    if(preferred) utt.voice = preferred;
+    utt.onend = onDone;
+    utt.onerror = onDone;
+    window.speechSynthesis.speak(utt);
+  }
+
+  function speakDramatized(v, onDone){
+    els.pSub.textContent = "Loading narration…";
+    generateDramatization(v).then(function(text){
+      if(!state.isPlaying) return;
+      els.pSub.textContent = v.en.length > 60 ? v.en.slice(0, 60) + "…" : v.en;
+      playNarrationAudioOrSpeak(v, text, onDone);
+    }).catch(function(err){
+      console.warn("No narration for surah " + state.surahNumber + ", ayah " + v.number, err);
+      if(!state.isPlaying) return;
+      els.pSub.textContent = "No narration yet — playing translation";
+      speakText(v.en, onDone);
+    });
+  }
+
+  // Prefer the pre-generated narration MP3 (see noor-audio-gen/) — real,
+  // consistent voice, works with the Media Session controls added above.
+  // Falls back to on-device text-to-speech for any verse that doesn't have
+  // a generated file yet, so the app works right away and just gets better
+  // as narration-audio/ fills in.
+  function playNarrationAudioOrSpeak(v, text, onDone){
+    var audioPath = "./narration-audio/" + state.surahNumber + "/" + v.number + ".mp3";
+    var fallenBack = false;
+
+    function fallbackToSpeech(){
+      if(fallenBack) return;
+      fallenBack = true;
+      speakText(text, onDone);
+    }
+
+    state.audioEl.muted = false;
+    state.audioEl.pause();
+    state.audioEl.src = audioPath;
+    state.audioEl.onended = function(){ if(!fallenBack) onDone(); };
+    state.audioEl.onerror = fallbackToSpeech;
+    state.audioEl.play().catch(fallbackToSpeech);
+  }
+
+  function playArabicAudio(v, onDone){
+    if(!v.audioUrl){ onDone(); return; }
+    state.audioEl.muted = false;
+    state.audioEl.pause();
+    state.audioEl.src = v.audioUrl;
+    state.audioEl.onended = onDone;
+    state.audioEl.onerror = onDone;
+    state.audioEl.play().catch(function(){ onDone(); });
+  }
+
+  function speakEnglish(v, onDone){
+    speakText(v.en, onDone);
+  }
+
+  function advanceOrStop(){
+    if(!state.isPlaying) return;
+    var next = state.currentIndex + 1;
+    if(next >= state.verses.length){ stopPlayback(); return; }
+    state.currentIndex = next;
+    updatePlayerInfo(next);
+    playCurrentVerse();
+  }
+
+  function stopPlayback(){
+    state.isPlaying = false;
+    setPlayIcon(false);
+    state.audioEl.pause();
+    if("speechSynthesis" in window) window.speechSynthesis.cancel();
+    releaseWakeLock();
+    if("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
+  }
+
+  function togglePlay(){
+    unlockAudioContext();
+    if(state.isPlaying){ stopPlayback(); return; }
+    var startIdx = state.currentIndex >= 0 ? state.currentIndex : 0;
+    playFromIndex(startIdx);
+  }
+
+  // ---------- Event wiring ----------
+  els.select.addEventListener("change", function(){
+    els.resumeBanner.style.display = "none";
+    loadSurah(parseInt(els.select.value, 10));
+  });
+
+  els.playBtn.addEventListener("click", togglePlay);
+  els.prevBtn.addEventListener("click", function(){
+    unlockAudioContext();
+    var idx = Math.max(0, (state.currentIndex >= 0 ? state.currentIndex : 0) - 1);
+    if(state.isPlaying){ playFromIndex(idx); } else { state.currentIndex = idx; updatePlayerInfo(idx); }
+  });
+  els.nextBtn.addEventListener("click", function(){
+    unlockAudioContext();
+    var idx = Math.min(state.verses.length - 1, (state.currentIndex >= 0 ? state.currentIndex : -1) + 1);
+    if(state.isPlaying){ playFromIndex(idx); } else { state.currentIndex = idx; updatePlayerInfo(idx); }
+  });
+
+  els.modeButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      unlockAudioContext();
+      els.modeButtons.forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      state.mode = btn.getAttribute("data-mode");
+      if(state.isPlaying){
+        state.audioEl.pause();
+        if("speechSynthesis" in window) window.speechSynthesis.cancel();
+        playCurrentVerse();
+      }
+    });
+  });
+
+  function refreshVoices(){
+    state.voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  }
+  if("speechSynthesis" in window){
+    refreshVoices();
+    window.speechSynthesis.onvoiceschanged = refreshVoices;
+  }
+
+  // ---------- PWA install ----------
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();
+    state.deferredInstallPrompt = e;
+    els.installBtn.style.display = "block";
+  });
+  els.installBtn.addEventListener("click", function(){
+    if(!state.deferredInstallPrompt) return;
+    state.deferredInstallPrompt.prompt();
+    state.deferredInstallPrompt.userChoice.finally(function(){
+      state.deferredInstallPrompt = null;
+      els.installBtn.style.display = "none";
+    });
+  });
+  window.addEventListener("appinstalled", function(){
+    els.installBtn.style.display = "none";
+  });
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("./sw.js").catch(function(err){
+        console.warn("Service worker registration failed:", err);
+      });
+    });
+  }
+
+  // ---------- Init ----------
+  loadPrefs();
+  populateSettingsSelects();
+  loadSurahList();
+
+})();
+</script>
+
+</body>
+</html>

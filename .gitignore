@@ -1,0 +1,13 @@
+# Google Cloud service account credentials — NEVER commit these
+*.json
+!manifest.json
+!narrations.json
+!package.json
+!package-lock.json
+
+# Node
+node_modules/
+
+# OS junk
+.DS_Store
+Thumbs.db
