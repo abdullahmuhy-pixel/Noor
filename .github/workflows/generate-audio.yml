@@ -1,0 +1,90 @@
+name: Generate Narration Audio
+
+# Runs entirely on GitHub's servers — triggered manually from the Actions
+# tab in a mobile browser, no computer or terminal required. Commits and
+# pushes generated audio back to this repo automatically, one surah at a
+# time, so progress is saved incrementally even if a run gets interrupted.
+
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: "tafsir or translation"
+        required: true
+        default: "tafsir"
+        type: choice
+        options:
+          - tafsir
+          - translation
+      translation:
+        description: "Translation edition (only used when kind = translation)"
+        required: false
+        default: "en.sahih"
+      surah_start:
+        description: "First surah number to generate"
+        required: true
+        default: "1"
+      surah_end:
+        description: "Last surah number to generate (inclusive)"
+        required: true
+        default: "114"
+      voice:
+        description: "Google Cloud TTS voice"
+        required: false
+        default: "en-US-Neural2-D"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Write Google credentials
+        run: echo "$GOOGLE_CREDENTIALS_JSON" > "$RUNNER_TEMP/gcp-key.json"
+        env:
+          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate audio, one surah at a time, committing as it goes
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcp-key.json
+        run: |
+          set -e
+          KIND="${{ github.event.inputs.kind }}"
+          VOICE="${{ github.event.inputs.voice }}"
+          TRANSLATION="${{ github.event.inputs.translation }}"
+          START="${{ github.event.inputs.surah_start }}"
+          END="${{ github.event.inputs.surah_end }}"
+
+          for i in $(seq "$START" "$END"); do
+            echo "=== Surah $i ==="
+            if [ "$KIND" = "translation" ]; then
+              node generate-narration-audio.js --kind=translation --translation="$TRANSLATION" --surah="$i" --voice="$VOICE"
+            else
+              node generate-narration-audio.js --kind=tafsir --surah="$i" --voice="$VOICE"
+            fi
+
+            git add narration-audio/ translation-audio/ 2>/dev/null || true
+            if ! git diff --cached --quiet; then
+              git commit -m "Generate $KIND audio: surah $i"
+              git pull --rebase
+              git push
+            fi
+          done
