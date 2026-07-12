@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The First — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink); padding-bottom:40px; }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 4px; }
+  .tagline{ font-size:0.8rem; opacity:0.7; margin:0; }
+  main{ max-width:680px; margin:0 auto; padding:20px; }
+  .person-nav{ display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:20px; }
+  .person-nav button{
+    flex:none; background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.3);
+    color:var(--ink); padding:8px 14px; border-radius:20px; font-size:0.8rem; cursor:pointer;
+    font-family:'Inter',sans-serif; white-space:nowrap;
+  }
+  .person-nav button.active{ background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:600; }
+  .person-title{ font-family:'Amiri',serif; font-size:1.4rem; margin:0 0 4px; color:var(--gold); }
+  .person-meta{ font-size:0.78rem; opacity:0.6; margin-bottom:20px; }
+  .section{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.2);
+    border-radius:14px; padding:18px; margin-bottom:12px;
+  }
+  .section p{ font-size:0.98rem; line-height:1.75; margin:0 0 12px; }
+  .section p:last-child{ margin-bottom:0; }
+  .narrate-btn{
+    background:none; border:1px solid rgba(169,128,63,0.4); color:var(--gold);
+    padding:7px 14px; border-radius:20px; font-size:0.8rem; cursor:pointer;
+    font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:6px; margin-top:6px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Noor</a>
+  <h1>The First</h1>
+  <p class="tagline">The lives of the earliest companions who accepted Islam — one biography at a time.</p>
+</header>
+
+<main>
+  <div class="person-nav" id="personNav"></div>
+  <div class="person-title" id="personTitle"></div>
+  <div class="person-meta" id="personMeta"></div>
+  <div id="personBody"></div>
+</main>
+
+<script>
+  // Biographies of the earliest companions (as-Sabiqun al-Awwalun), in the
+  // spirit of Yaqeen Institute's "The First" series. This starts with a
+  // solid first batch of the most foundational figures and is meant to
+  // keep growing toward the full circle of early companions over time,
+  // the same way the Seerah itself was built out incrementally.
+  var PEOPLE = [
+    {
+      name: "Khadijah bint Khuwaylid",
+      meta: "The first believer, and twenty-five years of unmatched partnership",
+      sections: [
+        "Khadijah was born into one of Makkah's most respected merchant families, and by the time she met Muhammad she had already been widowed twice and had built one of the city's most successful trading businesses in her own right — unusual independence for a woman in that era, achieved by hiring capable men to lead her caravans rather than depending on a husband's status for her wealth.",
+        "It was exactly this arrangement that first brought Muhammad into her life: hearing of his reputation for honesty, she hired him to lead a caravan to Syria on her behalf. The journey returned with far greater profit than she expected, and the reports she received of his conduct along the way impressed her enough that she sent a proposal of marriage through an intermediary, despite being roughly fifteen years his senior.",
+        "Their marriage lasted twenty-five years, and for the entirety of it he took no other wife — a fact made more striking by how common multiple marriages were among men of standing in that society, and one that speaks to how complete their partnership was considered to be. She bore him several children, among them his sons Qasim and Abdullah, both of whom died in infancy, and his daughters Zainab, Ruqayyah, Umm Kulthum, and Fatimah.",
+        "When revelation first came to him in the cave of Hira, terrifying and disorienting, it was Khadijah he ran to, and Khadijah who steadied him without a moment's hesitation — telling him plainly that Allah would never abandon a man who held family ties, spoke truthfully, helped the poor, and stood by those in hardship. She became, in that instant, the very first person to believe in his message, before any sign or proof had been asked for or given.",
+        "Through the years of persecution that followed, she used her own wealth and standing to shield and support the small community as it formed, and endured the harsh three-year boycott of Banu Hashim alongside him despite being an elderly woman by then. She died shortly after the boycott ended, in the stretch of loss remembered as the Year of Sorrow, and Muhammad's grief for her was lasting — he continued to speak of her fondly for the rest of his life, sent gifts to her old friends out of remembrance, and on more than one occasion this open devotion visibly stirred jealousy in Aisha, married to him years later, toward a woman she had never even met."
+      ]
+    },
+    {
+      name: "Abu Bakr as-Siddiq",
+      meta: "The first free man to believe, and the first Caliph after the Prophet's death",
+      sections: [
+        "Born Abdullah ibn Abi Quhafa, Abu Bakr was a respected Makkan merchant and one of Muhammad's closest friends long before either of them had any idea what was coming. When Muhammad told him what had happened in the cave of Hira, Abu Bakr accepted it immediately and without question — becoming the first adult free man to enter Islam, and using both his friendship and his considerable wealth from that point on in the service of the new community.",
+        "That wealth went, among other things, toward buying the freedom of enslaved converts being tortured for their faith, Bilal among them — a pattern of quiet, costly generosity that would define much of his life. When the moment came for the Hijrah, it was Abu Bakr alone who accompanied Muhammad on the dangerous journey to Madinah, sharing three days hidden in the cave of Thawr while Quraysh's search parties hunted for them both.",
+        "His unwavering loyalty earned him the title he is known by ever since — as-Siddiq, the testifier to truth — after he affirmed the Night Journey and Ascension without hesitation when others mocked the story as impossible, saying simply that if Muhammad said it happened, it happened. His daughter Aisha's marriage to the Prophet tied their families together even further.",
+        "In the final days of Muhammad's life, too weak by then to lead prayer himself, it was Abu Bakr he chose to lead the congregation in his place — a small gesture the community read, correctly, as a signal of who should guide them once he was gone. Following the Prophet's death, Abu Bakr was chosen at Saqifah as the first Caliph, and immediately faced a crisis that could have unravelled the entire young state: several Arab tribes, in the chaos following Muhammad's death, tried to break away or refused to continue paying zakat. Abu Bakr refused to compromise on this even under pressure from companions urging leniency, leading the community through what became known as the Ridda Wars to hold the fragile new polity together.",
+        "It was also under his brief rule, after a battle at Yamama claimed the lives of a troubling number of companions who had memorized the Quran, that he first authorized the project of collecting the revelation into a single, complete written manuscript — safeguarding against the loss of the text as living memory of it inevitably began to fade with each passing year. He died after roughly two years as Caliph, in 13 AH, and was buried beside the Prophet he had followed since the very first day."
+      ]
+    },
+    {
+      name: "Ali ibn Abi Talib",
+      meta: "Raised in the Prophet's own household, and the first among the children to believe",
+      sections: [
+        "Ali was the son of Abu Talib, Muhammad's uncle and guardian, and came to live in Muhammad's own household as a young boy after a difficult year had strained his father's ability to provide for his large family — a kindness Muhammad repaid many times over as Ali grew into adulthood under his direct care and teaching.",
+        "When revelation first came, Ali was still a young boy, and became the first among the children of that household to accept the message without any hesitation, well before most of Makkah's adults had even heard of it. Years later, on the night Quraysh's assassins surrounded Muhammad's house intending to kill him, it was Ali who agreed to sleep in his bed wrapped in his cloak as a decoy, fully aware of the danger that discovery could bring down on him personally, buying the time Muhammad needed to slip away toward Madinah.",
+        "He married Fatimah, Muhammad's beloved daughter, and fought in nearly every major battle of the Prophet's life — defeating a renowned enemy champion, Amr ibn Abd Wudd, in single combat at the Battle of the Trench, and later receiving the banner at Khaybar after Muhammad prayed over his eyes and the pain of an infection he'd been suffering from left him entirely.",
+        "Known throughout his life for his depth of knowledge and sharpness in judgment, later generations remembered him as someone through whom enormous understanding of the Quran and the Prophet's teaching had passed onward. After the assassination of the third Caliph, Uthman, Ali was chosen as the fourth Caliph, inheriting a community now fractured by grief and suspicion. His rule was consumed largely by internal conflict — the Battle of the Camel against a faction that included Aisha, Talha, and Zubayr, and the long, bitter standoff at Siffin against Muawiyah, the governor of Syria who refused to recognize his authority.",
+        "He was assassinated in 40 AH by a member of the Kharijites, a group that had broken away from his own camp during the Siffin arbitration, struck down while leading the dawn prayer in the mosque of Kufa — closing, in violence, a life that had begun in the Prophet's own home as a small boy taken in out of simple family kindness."
+      ]
+    },
+    {
+      name: "Zayd ibn Harithah",
+      meta: "A freed slave adopted as a son, and the only companion named directly in the Quran",
+      sections: [
+        "Zayd was captured as a child during a tribal raid and sold into slavery, eventually passing into the possession of Khadijah, who gifted him to Muhammad shortly after her marriage to him. When Zayd's own father and uncle later tracked him down in Makkah and offered a generous ransom for his return, Muhammad told Zayd he was free to choose — to go home with his own family, or to remain. Zayd chose to stay, a decision that moved Muhammad enough that he took him out to the Ka'bah and publicly declared him his adopted son, at a time when such adoption carried full inheritance rights and the adopted child's name would be changed to match the father's.",
+        "Zayd was among the very first people to accept Islam, alongside Khadijah and the young Ali, and remained one of Muhammad's most trusted companions for the rest of his life. He is the only companion mentioned by name anywhere in the Quran — in Surah Al-Ahzab, in verses addressing his divorce from Zaynab bint Jahsh and Muhammad's subsequent marriage to her, a passage that directly dismantled the pre-Islamic custom of treating adopted sons as full blood relatives for the purposes of marriage law, changing Zayd's own name back from 'Zayd ibn Muhammad' to 'Zayd ibn Harithah' in the same stroke.",
+        "Despite having no noble lineage in a culture that prized tribal status enormously, Zayd was repeatedly entrusted with command of entire expeditions by Muhammad, a mark of just how much trust he had earned regardless of birth. That trust proved fatal in the end: leading the Muslim forces at the Battle of Mu'tah against a much larger Byzantine-aligned army, one of the first serious clashes on the northern frontier, Zayd was killed in the fighting — the boy once bought and sold as property, buried as a commander who had led armies in the same faith he had chosen for himself, freely, when he could have simply gone home."
+      ]
+    },
+    {
+      name: "Bilal ibn Rabah",
+      meta: "Tortured for refusing to renounce his faith, and chosen for the very first call to prayer",
+      sections: [
+        "Born to an enslaved Abyssinian mother in Makkah, Bilal accepted Islam early, and paid for it more severely than almost anyone else in the young community. His owner, Umayyah ibn Khalaf, dragged him into the desert heat and pinned him beneath a massive boulder, demanding again and again that he renounce his faith. Bilal's answer, repeated through the pain, never changed: 'Ahad, Ahad' — One, One — insisting on Allah's oneness even as he was being crushed for it, until Abu Bakr came and purchased his freedom outright, unable to watch it continue.",
+        "Once free, Bilal became one of the earliest and most devoted members of the community, and when a method for calling people to prayer was finally settled on, Muhammad chose him personally for the task, moved by the power of his voice — Bilal became the first muezzin in Islamic history, climbing up over Madinah five times a day to call people to prayer for years afterward.",
+        "He was present at Badr, and among the Quraysh dead on that field was Umayyah ibn Khalaf, the very man who had once tortured him in the desert — a settling of accounts that closed a chapter of real suffering with an ending Bilal himself had a hand in.",
+        "After Muhammad's death, Bilal found himself unable to continue giving the call to prayer in Madinah as he once had — the sound of his own voice calling out over the city stirred grief too sharp to bear, tied as it was to memories of a era now gone. He eventually relocated to Syria, and on the rare occasions afterward when he was persuaded to give the adhan again, companions who heard it were reported to weep, pulled back instantly to the Prophet's own time. He died in Syria some years later, a man whose life had run the entire distance from a boulder in the desert sand to a voice that called an entire city to prayer."
+      ]
+    },
+    {
+      name: "The Family of Yasir",
+      meta: "Ammar, his father Yasir, and his mother Sumayyah — Islam's first martyrs",
+      sections: [
+        "Yasir ibn Amir had come to Makkah from Yemen and settled there, marrying a woman named Sumayyah bint Khabbat, herself formerly enslaved. Together they had a son, Ammar, and the whole family accepted Islam in its earliest years — a decision that, lacking any powerful clan to shield them the way Muhammad's own status protected him, exposed all three of them directly to Quraysh's cruelest instincts.",
+        "Abu Jahl and others subjected the family to torture meant specifically to break their resolve, dragging them out into the desert heat repeatedly to demand they renounce the faith. Sumayyah never did, and was ultimately killed by Abu Jahl himself for her refusal — becoming, in that moment, the very first martyr in the history of Islam. Yasir did not survive the ordeal much longer either, dying from what had been done to him.",
+        "Ammar himself survived, but only after being pushed to a breaking point that revelation itself later addressed directly: under torture so severe that his life was genuinely at risk, he spoke words of renunciation aloud while his heart, by every account, remained entirely firm in belief. When he came to Muhammad afterward in visible distress over what he had said, revelation came clarifying that a person forced under real compulsion, whose heart remains secure in faith, is not held to have truly disbelieved at all — a mercy carved out explicitly for exactly what his family had just endured.",
+        "Ammar went on to live a long life after this — fighting in the major battles, remembered for his devotion and his simple, unpretentious character — until he was killed decades later at the Battle of Siffin, fighting alongside Ali against Muawiyah's forces, fulfilling words attributed to the Prophet that he would be killed by a group that had transgressed against the truth. Of a family that had once been tortured together in the desert sand for a faith with no protection to offer them, only Ammar lived to see it become an empire — and even he, in the end, gave his life for it on another battlefield entirely."
+      ]
+    },
+    {
+      name: "Umar ibn al-Khattab",
+      meta: "From a sword drawn to kill the Prophet, to the second Caliph of a growing empire",
+      sections: [
+        "Before his conversion, Umar was known across Makkah for his physical strength and his fierce, uncompromising opposition to Muhammad's message — so fierce that he set out one day with a drawn sword, intending to kill him outright and end the matter himself. On the way, he learned that his own sister, Fatimah, and her husband had secretly accepted Islam, and diverted toward her house in fury instead.",
+        "Confronting her, he struck her upon finding her reciting from a page of the Quran, and it was in the moment right after — hearing the words she had been reading recited properly — that something in him broke open entirely differently than he'd intended. He went from her house directly to Muhammad and accepted Islam on the spot, turning almost overnight from one of the message's fiercest enemies into one of its most forceful and protective defenders.",
+        "His conversion was significant enough that Muslims, for the first time, felt able to pray openly at the Ka'bah without fear of being harassed, his and Hamzah's presence alone enough to give the small community real physical confidence in public. His daughter Hafsah later married the Prophet, tying his family closely into Muhammad's own household, and he remained one of his closest and most trusted advisors for the rest of his life.",
+        "Succeeding Abu Bakr as the second Caliph, Umar presided over an extraordinary period of territorial expansion — Persia, much of the Byzantine Levant, and Egypt all came under Muslim rule during his time, transforming a regional movement into a genuine empire within a single generation. Despite this, he was known for a personal lifestyle that stayed strikingly austere throughout, famously patching his own clothes and living simply even as he governed vast new territories. He instituted the Islamic calendar counted from the Hijrah, and built early systems of public welfare and administration that shaped how the growing state was run.",
+        "He was assassinated in 23 AH by Abu Lu'lu'ah, a Persian slave acting over a personal grievance unrelated to matters of state, struck down while leading the dawn prayer — the same prayer time at which Ali, decades later, would also be killed, closing two of early Islam's greatest leaders in strikingly similar circumstances."
+      ]
+    },
+    {
+      name: "Mus'ab ibn Umair",
+      meta: "From the finest clothes in Makkah to a shroud too small to cover him",
+      sections: [
+        "Mus'ab was born into one of Makkah's wealthiest families, and before his conversion was known throughout the city for the quality of his clothing and the comfort of his upbringing — by every account, a young man who wanted for nothing.",
+        "He accepted Islam quietly at first, hiding it from his family for as long as he could, but once discovered, the reaction was severe: he was effectively disowned, cut off from the wealth and comfort he had grown up with, and reduced to real poverty for the sake of a faith his own household refused to accept. He bore this loss, by every surviving account, without regret.",
+        "After the first pledge at Aqabah, Muhammad chose Mus'ab specifically to travel to Madinah as the very first missionary and teacher sent to prepare the ground for the coming migration. His patient, unforced approach to teaching won over people who had arrived to confront him angrily, including tribal leaders like Sa'd ibn Mu'adh and Usayd ibn Hudayr, both of whom ended up converting after intending to silence him rather than listen — and through them, large portions of their own clans followed within days. He played a central role in preparing the second pledge at Aqabah as well, the one that finally committed Madinah's community to defending Muhammad outright.",
+        "He was killed at the Battle of Uhud, fighting to defend Muhammad directly amid the chaos when the Muslim line broke. When his body was recovered afterward, the only cloth available to bury him in was so small that it could not cover both his head and his feet at once — the companions covering his head and leaving grass over his feet instead, or the reverse, unable to do both at the same time. Muhammad, reflecting on the young man who had once worn the finest clothes in Makkah and was now being buried in a shroud too small for his own body, was reported to have wept openly at the sight — a single image the seerah has kept ever since as a measure of what these early companions gave up, and what they were given in its place."
+      ]
+    }
+  ];
+
+  var els = {
+    personNav: document.getElementById("personNav"),
+    personTitle: document.getElementById("personTitle"),
+    personMeta: document.getElementById("personMeta"),
+    personBody: document.getElementById("personBody")
+  };
+
+  var currentPerson = 0;
+
+  function renderNav(){
+    els.personNav.innerHTML = PEOPLE.map(function(p, i){
+      return '<button data-i="' + i + '" class="' + (i === currentPerson ? "active" : "") + '">' + p.name + '</button>';
+    }).join("") + '<button disabled style="opacity:0.4;">More companions coming soon</button>';
+  }
+
+  function renderPerson(i){
+    currentPerson = i;
+    var person = PEOPLE[i];
+    els.personTitle.textContent = person.name;
+    els.personMeta.textContent = person.meta;
+    els.personBody.innerHTML = person.sections.map(function(text){
+      return '<div class="section">' +
+        '<p>' + text + '</p>' +
+        '<button class="narrate-btn" data-text="' + escapeAttr(text) + '">&#9835; Narrate</button>' +
+        '</div>';
+    }).join("");
+    renderNav();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function escapeAttr(str){
+    return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  }
+
+  els.personNav.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-i]");
+    if(!btn) return;
+    renderPerson(parseInt(btn.getAttribute("data-i"), 10));
+  });
+
+  els.personBody.addEventListener("click", function(e){
+    var btn = e.target.closest(".narrate-btn");
+    if(!btn) return;
+    var text = btn.getAttribute("data-text");
+    btn.textContent = "Speaking…";
+    speakText(text, function(){ btn.innerHTML = "&#9835; Narrate"; });
+  });
+
+  // Same on-device speech approach as the rest of Noor's new pages. Full
+  // generated-audio support can be wired in later the same way, reusing
+  // the same localStorage keys the main app already uses.
+  function speakText(text, onDone){
+    if(!("speechSynthesis" in window)){ onDone(); return; }
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.95;
+    utter.onend = onDone;
+    utter.onerror = onDone;
+    window.speechSynthesis.speak(utter);
+  }
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+
+  renderPerson(0);
+</script>
+</body>
+</html>

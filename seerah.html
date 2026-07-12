@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Seerah — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink); padding-bottom:40px; }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 4px; }
+  .tagline{ font-size:0.8rem; opacity:0.7; margin:0; }
+  main{ max-width:680px; margin:0 auto; padding:20px; }
+  .chapter-nav{ display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:20px; }
+  .chapter-nav button{
+    flex:none; background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.3);
+    color:var(--ink); padding:8px 14px; border-radius:20px; font-size:0.8rem; cursor:pointer;
+    font-family:'Inter',sans-serif; white-space:nowrap;
+  }
+  .chapter-nav button.active{ background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:600; }
+  .chapter-title{ font-family:'Amiri',serif; font-size:1.4rem; margin:0 0 4px; color:var(--gold); }
+  .chapter-meta{ font-size:0.78rem; opacity:0.6; margin-bottom:20px; }
+  .section{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.2);
+    border-radius:14px; padding:18px; margin-bottom:12px;
+  }
+  .section p{ font-size:0.98rem; line-height:1.75; margin:0 0 12px; }
+  .section p:last-child{ margin-bottom:0; }
+  .narrate-btn{
+    background:none; border:1px solid rgba(169,128,63,0.4); color:var(--gold);
+    padding:7px 14px; border-radius:20px; font-size:0.8rem; cursor:pointer;
+    font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:6px; margin-top:6px;
+  }
+  .coming-soon{
+    text-align:center; padding:40px 20px; opacity:0.6; font-size:0.9rem; line-height:1.6;
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Noor</a>
+  <h1>Seerah</h1>
+  <p class="tagline">The life of the Prophet Muhammad ﷺ, dramatized chapter by chapter.</p>
+</header>
+
+<main>
+  <div class="chapter-nav" id="chapterNav"></div>
+  <div class="chapter-title" id="chapterTitle"></div>
+  <div class="chapter-meta" id="chapterMeta"></div>
+  <div id="chapterBody"></div>
+</main>
+
+<script>
+  // Each chapter is an array of narratable sections. This grows over time —
+  // currently covers the earliest period of the seerah; later chapters
+  // (Hijrah, Madinah, the major battles, the Farewell Sermon) will be added
+  // the same way the Quran dramatization was built out, incrementally.
+  var CHAPTERS = [
+    {
+      title: "Before the Light",
+      meta: "Lineage through the Farewell Sermon's earliest roots — birth to marriage with Khadijah",
+      sections: [
+        "In the year later remembered as the Year of the Elephant, a Yemeni ruler named Abraha marched a large army — with a war elephant named Mahmud at its center — on Makkah, intending to tear down the Ka'bah and redirect Arabia's pilgrimage traffic to a cathedral he had built in Sana'a instead. Tradition holds that as the army neared the sanctuary, the elephant itself simply refused to advance any further no matter how it was driven, and shortly after, flocks of birds appeared overhead dropping small stones that devastated the invading force, turning back the whole expedition within sight of the Ka'bah it had come to destroy. That same year, in the tribe of Quraysh, a boy was born who would carry no father's memory with him at all — Abdullah had died on a trading journey before his son ever opened his eyes.",
+        "His mother, Aminah, named him Muhammad — 'the praised one' — a name almost unused among the Arabs of that time, as though something in the choosing already reached toward what he would become. Following the custom of Makkah's noble families, the infant was sent out to the desert to be nursed among the Bani Sa'd, where clean air and pure Arabic speech shaped a child's earliest years away from the city.",
+        "It was there, in the household of his foster mother Halimah, that unmistakable signs began to gather around him — a household that had known lean seasons suddenly found its flocks fattening and its wells filling from the day he arrived. Halimah, moved by what she could not explain, kept him with her longer than custom required, reluctant to return him to his own mother.",
+        "One incident from these years with Halimah's family is remembered vividly: while playing with other children, he was taken aside by two figures who, in the tradition's telling, opened his chest, removed his heart, washed it, and returned it to him — an event known as Shaqq al-Sadr, which frightened Halimah enough that she eventually decided, despite everything good that had come from raising him, that it was time to return him safely to his own mother in Makkah.",
+        "When he did return to Makkah, it was not for long. Before he had reached six years old, his mother Aminah died on the road back from visiting his father's grave in Madinah, leaving him orphaned twice over before he could remember either parent clearly. His grandfather, Abd al-Muttalib, took him in with visible tenderness, seating the boy beside himself in gatherings where grown men waited to be invited — until two years later, the grandfather too was gone, and guardianship passed to his uncle, Abu Talib.",
+        "Abu Talib was not a wealthy man, but he loved his nephew as his own, and took him along on a trading journey to Syria while he was still young. It was on this journey, tradition holds, that a Christian monk named Bahira met the caravan, looked closely at the boy, and told Abu Talib to guard him carefully — recognizing, from what he had studied in older scriptures, signs of a coming prophet.",
+        "The years that followed were quiet ones by any outward measure: he tended sheep in the hills above Makkah, work that taught patience and solitude before anything else did. As a young man he took part in a defensive skirmish remembered as the War of Fijar, and afterward joined an alliance of Makkah's clans — the Hilf al-Fudul — formed after a visiting trader was cheated and abused with no clan of his own to seek justice for him. The alliance swore to stand together for the wronged and the stranger, regardless of tribe, and Muhammad would later say, even after prophethood had changed everything else about his life, that he would still answer a call to that same pledge if it were made again.",
+        "His honesty on trading journeys earned him a name before he ever preached a single verse — al-Amin, the trustworthy one — a reputation that reached a wealthy widow named Khadijah, who hired him to lead a caravan to Syria on her behalf. The journey returned with profits beyond what she expected, and with it, word of his character from those who had traveled with him. Khadijah, fifteen years his senior and twice widowed, sent a proposal of marriage through an intermediary. He accepted, and their marriage — by every account that survives it — was one of deep partnership and equal devotion, lasting until her death and never repeated in kind with any wife after her.",
+        "One incident from these years before revelation is still told for what it reveals about him: when the Ka'bah was being rebuilt after flood damage, the clans of Makkah nearly came to blows over which of them would have the honor of setting the sacred Black Stone back into its place. It was agreed that whoever entered the sanctuary next would decide the matter. That person was Muhammad. He spread out a cloak, placed the stone in its center, and had a representative from every clan lift one edge together — so that no single tribe could claim the honor alone, and no blood was shed over a stone meant to unite them."
+      ]
+    },
+    {
+      title: "The Cave of Hira",
+      meta: "The first revelation and the beginning of prophethood",
+      sections: [
+        "As he entered his fortieth year, Muhammad had developed a habit his own people found unusual: withdrawing for days at a stretch to a small cave on the mountain of Hira, just outside Makkah, taking little food and spending long hours in quiet reflection — away from the idols, the tribal disputes, and the noise of a city he had grown increasingly uneasy within, though he could not yet have said exactly why.",
+        "It was during one of these retreats, in the month of Ramadan, that everything changed. A presence entered the cave that he could not see fully, and a voice commanded him: 'Read.' He answered honestly — he could not read; he had never been taught. The command came again, and again he gave the same answer, until on the third time the being embraced him tightly and then released him with the words that would open the entire Quran's revelation: 'Read, in the name of your Lord who created — created man from a clinging clot. Read, and your Lord is the Most Generous, who taught by the pen, taught man what he did not know.'",
+        "He fled the cave shaking, uncertain what had happened to him, and ran the distance home to Khadijah saying only, 'Cover me, cover me,' until the trembling passed. When he was able to speak, he told her everything, ending with words that carried real fear in them — that he feared for himself, for his own mind, for what this meant. In the days that followed, whenever revelation came again, those close to him would describe a real physical toll accompanying it — a heaviness settling over him, sweat forming even in cold weather, and on at least one occasion his own thigh, resting against a companion's leg at the time, feeling so heavy that his companion later said he feared it would be crushed.",
+        "Khadijah's response is remembered as one of the great acts of faith in the entire story: without hesitation, she told him that Allah would never let him down — reminding him that he was a man who held family ties, spoke truthfully, carried the burdens of others, helped the poor, welcomed guests, and stood by those struck by hardship. A person like that, she said, is not abandoned.",
+        "She took him to her cousin, Waraqah ibn Nawfal, an elderly man who had studied earlier scripture and become Christian in his old age, nearly blind by then but sharp in memory. Waraqah listened to what had happened in the cave and said plainly that this was the same angel — Gabriel — who had come to Moses, and that Muhammad was being made a prophet to his people. He added, with sorrow already in his voice, that he wished he could be young again to stand by him when his own people would drive him out — because, Waraqah said, no one had ever brought what he was about to bring without being opposed.",
+        "For a time after this first encounter, the revelation paused entirely — a stretch of silence remembered as the fatrah, and the toll it took on him is described candidly rather than glossed over: he is reported to have gone out toward the mountain peaks more than once during this silence, in real anguish at its absence, only to be stopped short by the sight of Gabriel appearing on the horizon, filling the whole span of the sky between earth and heaven, a sight that steadied him each time until he returned home still shaken.",
+        "When the silence finally broke, it came again from the mountain, this time with the words that would define his mission from that point forward: 'O you who is covered, arise and warn.' The quiet years of a trader and shepherd were over. What followed would reshape Arabia, and eventually reach far beyond it."
+      ]
+    },
+    {
+      title: "The First Believers",
+      meta: "Private devotion, the first converts, and the move to open preaching",
+      sections: [
+        "Khadijah was the very first to believe him — not after questioning, not after proof, simply upon hearing what had happened in the cave. In his own household, his young cousin Ali, still a boy being raised under his roof, accepted without hesitation, as did Zayd ibn Harithah, a freed slave who had chosen to stay with him as an adopted son rather than return to his own family when given the chance.",
+        "Outside his household, it was his closest friend, Abu Bakr, whose belief mattered most in these earliest days — a respected, trusted merchant whose immediate acceptance carried real weight in Makkah, and whose quiet, persistent invitations to others brought in some of the men who would later be remembered among the greatest companions: Uthman ibn Affan, Zubayr ibn al-Awwam, Abdur Rahman ibn Awf, Sa'd ibn Abi Waqqas, Talha ibn Ubaydillah — a small circle at first, meeting quietly, often at the house of a new convert named al-Arqam, tucked away from Quraysh's notice, where Muhammad himself taught them the Quran directly and led them in prayer out of sight of the city's leading families.",
+        "Alongside these well-connected converts came others with no clan protection at all to shield them — Bilal ibn Rabah, an enslaved Abyssinian; Ammar ibn Yasir and his parents Yasir and Sumayyah; Suhayb ar-Rumi, a former captive raised among the Byzantines; Khabbab ibn al-Aratt, a blacksmith with no powerful family behind him. Their acceptance of the same message carried a very different risk than it did for men like Abu Bakr, and it would not be long before that difference became painfully clear.",
+        "For roughly three years, the message spread only this way — person to person, household to household, never announced publicly. Then came a revelation impossible to keep private any longer: a command to warn his closest relatives first, by name. He gathered the clan of Hashim and spoke to them directly, and though the response was mixed — his uncle Abu Lahab mocking him openly even as others stayed quiet — the private phase had ended.",
+        "Soon after, he climbed the hill of Safa and called out to the whole of Quraysh by clan name until they gathered before him, curious. He asked them plainly: if he told them an army was massing behind the mountain to attack them, would they believe him? They answered that they would — they had never known him to lie. 'Then I am a warner to you,' he said, 'before a severe punishment.'",
+        "The room of goodwill emptied instantly. His own uncle Abu Lahab snapped back with a curse, asking if this was all he had gathered them for, and stormed off — a moment so significant it was answered directly by revelation shortly after, an entire short surah condemning Abu Lahab and his wife by name for that exact reaction.",
+        "From that day, tolerance turned to hostility. As long as the message had stayed quiet, Quraysh had mostly ignored it as one more oddity in a city full of soothsayers and poets. Once he began openly declaring their ancestors misguided and their idols powerless, the city's leading men decided this was a threat to be crushed, not a curiosity to be humored — and the years that followed would test exactly how far they were willing to go."
+      ]
+    },
+    {
+      title: "Years of Persecution",
+      meta: "Torture, the first martyr, the migration to Abyssinia, and the boycott",
+      sections: [
+        "Quraysh's response escalated from mockery into physical brutality, aimed especially at converts who had no powerful clan to shield them. Bilal ibn Rabah, an Abyssinian slave, was dragged into the desert heat by his enraged owner, Umayyah ibn Khalaf, who pinned him beneath a massive boulder under the midday sun and demanded he renounce his faith. Bilal's answer, repeated through the pain, was a single word: 'Ahad, Ahad' — One, One — insisting on Allah's oneness even as he was being crushed for it. Abu Bakr eventually purchased his freedom outright, unable to watch it continue.",
+        "Sumayyah bint Khabbat, an enslaved woman and mother of the early convert Ammar ibn Yasir, endured torture alongside her husband and son for their faith, and was ultimately killed by Abu Jahl, one of Quraysh's fiercest opponents of the message — becoming, in that moment, the first martyr Islam would count.",
+        "Muhammad himself was largely protected from the very worst physical harm by one crucial fact: his uncle Abu Talib, though he never accepted Islam himself, refused to withdraw the clan's tribal protection from his nephew, and Quraysh's own customs made attacking a protected man a matter that could ignite a wider conflict they weren't yet ready to start.",
+        "Two conversions from this period changed the community's position significantly. Hamzah, Muhammad's uncle and a formidable warrior known throughout Makkah, accepted Islam on the spot after learning that Abu Jahl had insulted and struck his nephew in the street — he marched straight to where Abu Jahl sat, struck him with his bow in anger, and declared himself a Muslim then and there, daring anyone to challenge him over it. Not long after, Umar ibn al-Khattab — until then one of the fiercest opponents of the message, setting out one day with a drawn sword intending to kill Muhammad himself — was redirected by news that his own sister Fatimah had secretly converted. Confronting her, he struck her before hearing her recite from a page of the Quran she had been studying, and something in the words themselves stopped him mid-anger; he went from there directly to Muhammad and accepted Islam, becoming almost overnight one of its most forceful defenders instead of one of its fiercest enemies.",
+        "Seeing his weaker followers suffering with no such protection, he advised a group of them to leave Makkah entirely and seek refuge across the sea, in Abyssinia, under a Christian king known for his justice. Led by his cousin Ja'far ibn Abi Talib, a small group made the journey and was received by the Negus, Ashama, at his own court.",
+        "Quraysh, alarmed at losing even this much control, sent a delegation with gifts to demand the refugees be returned. The Negus summoned Ja'far to answer for himself before making any decision. Ja'far spoke of the ignorance they had left behind — burying daughters alive, exploiting the weak, worshipping stone — and of what this new faith had commanded instead: honesty, prayer, kindness to orphans and neighbors, and the worship of one God alone. Asked for proof, he recited from Surah Maryam, the story of Mary and the birth of Jesus. The Negus wept, and refused to hand a single one of them back.",
+        "Back in Makkah, having failed to break the movement through cruelty or diplomacy, the leading clans of Quraysh drew up a formal pact: no member of Quraysh would trade with, marry into, or have any dealings whatsoever with the clan of Hashim until they handed Muhammad over. The document was hung inside the Ka'bah itself for solemnity, and Muhammad's entire clan — believers and non-believers alike, simply by blood loyalty — was forced into a narrow mountain pass on the edge of the city, cut off from the rest of Makkah's supplies and society.",
+        "The boycott lasted close to three years. Food had to be smuggled in at great risk, children's cries of hunger were said to be heard from outside the pass, and the hardship touched everyone confined there regardless of belief. It ended only when a few Quraysh leaders who had quietly opposed the boycott from the start pushed to have it annulled — and, as later tradition holds, when the pact document itself was found inside the Ka'bah eaten through by insects, with only the words 'In Your name, O Allah' left legible upon it."
+      ]
+    },
+    {
+      title: "The Year of Sorrow",
+      meta: "The deaths of Khadijah and Abu Talib, the journey to Ta'if, and the Night Journey",
+      sections: [
+        "The boycott had barely ended when grief arrived in quick succession. Khadijah — his wife of twenty-five years, the first to believe him, the one who had steadied him on the very night revelation began — passed away, leaving a loss he never fully stopped feeling; he would speak of her fondly for the rest of his life, long after remarrying, in ways that visibly unsettled some of his later wives.",
+        "Within weeks, his uncle Abu Talib died as well. Whatever Abu Talib's own beliefs had remained to the end, his protection had been the one thing standing between his nephew and Quraysh's worst instincts for over a decade. With him gone, that shield was gone too, and the hostility in Makkah grew sharper almost immediately — this stretch of loss is remembered simply as the Year of Sorrow.",
+        "Searching for any place that might offer support or at least safety, he traveled to the nearby town of Ta'if to appeal to its leading tribe directly. They refused him outright, and worse — they set the town's youths and slaves upon him, pelting him with stones along the road out until his feet were bleeding and a companion who had accompanied him was struck trying to shield him.",
+        "He took shelter, exhausted and injured, in an orchard belonging to two brothers who, though not sympathetic to his message, sent a servant out with grapes and water out of simple decency. The servant, a Christian named Addas, was startled when Muhammad said 'Bismillah' before eating — a phrase he recognized — and upon learning who Muhammad was and where he came from, Addas kissed his hands and feet, recognizing in him something connected to the prophet Yunus, whose story he knew from his own home city of Nineveh. Alone there, having been welcomed more warmly by this one stranger than by an entire town, Muhammad offered one of the most quoted supplications in the entire seerah — pleading to Allah about his own weakness and lack of resources, asking only that he not be abandoned to face this, as long as Allah himself was not angry with him.",
+        "Tradition holds that the angel of the mountains appeared to him then, offering — if he wished it — to crush the town of Ta'if between the two mountains surrounding it, in response to how he had been treated. He refused, saying he hoped that if not these people themselves, then perhaps their descendants would one day worship Allah alone.",
+        "Not long after this lowest point, he was granted what would become one of the most extraordinary nights of his life: the Isra and Mi'raj. He was taken first from Makkah to Jerusalem upon a swift, otherworldly mount known as Buraq, and led prayer there alongside the gathered spirits of every prophet who had come before him. From Jerusalem he ascended upward through the heavens themselves, meeting a different prophet at each level as he rose — Adam at the first heaven, Yahya and Isa together at the second, Yusuf at the third, Idris at the fourth, Harun at the fifth, Musa at the sixth, and Ibrahim at the seventh and highest, near a boundary called Sidrat al-Muntaha, the Lote Tree beyond which even Gabriel himself, who had guided him this far, could go no further.",
+        "It was here that the command for the five daily prayers was given, originally fifty in number. Musa, on Muhammad's way back down, urged him repeatedly to return and ask for a lighter burden, certain his own people would never have managed fifty — and so Muhammad went back again and again, each time securing a reduction, until it was set at five prayers a day, carrying nonetheless the full reward of fifty for whoever kept them faithfully.",
+        "When he related this journey to Quraysh the next morning, it was met with open ridicule — a night trip to Jerusalem and back was, to them, simply impossible. Abu Bakr, hearing the mockers repeat the story to him expecting him to break with his friend at last, answered instead that if Muhammad himself said it was true, then it was true — earning him, from that moment, the title he would carry ever after: as-Siddiq, the one who testifies to the truth without wavering."
+      ]
+    },
+    {
+      title: "The Pledges of Aqabah and the Hijrah",
+      meta: "Madinah's invitation, the assassination plot, and the migration",
+      sections: [
+        "With Makkah's hostility now unchecked, Muhammad spent each pilgrimage season approaching the tribes who gathered there, hoping one would offer him and his message the protection Abu Talib's death had taken away. Most turned him away outright. Then, one season, he met a small group of men from Yathrib, a farming settlement to the north later known as Madinah, who listened, accepted the message, and carried it home with them.",
+        "The following year, twelve men from Yathrib returned and met him quietly at a place called Aqabah, pledging to worship none but Allah, to avoid theft and immorality, and to obey him in what was right — a pledge notable for what it didn't yet include: no promise of defense or armed support, only personal conduct.",
+        "He sent one of his companions, Mus'ab ibn Umair, back with them to Yathrib to teach the new faith properly. Mus'ab's patient, unforced approach won over entire households, including eventually Sa'd ibn Mu'adh, a leading chief who had gone to confront him angrily and left having accepted Islam himself — after which nearly his whole clan followed within a day.",
+        "By the next pilgrimage season, seventy-three men and a handful of women from Yathrib came to Aqabah again, and this time the pledge was different in kind: they promised to defend Muhammad as fiercely as they would defend their own families, even at the cost of war with the rest of Arabia. This second pledge marked the true turning point — Muslims in Makkah began quietly emigrating to Yathrib in small groups over the following weeks, until almost none but Muhammad, Abu Bakr, and Ali remained.",
+        "Quraysh's leadership, realizing what was happening and fearing a united, armed community forming just north of them, settled on a final plan: a group of young men, one drawn from every clan in Makkah, would strike him down together in his sleep, so that his own clan could never seek revenge on any single tribe for the killing.",
+        "Warned in time, he asked Ali to sleep in his bed that night, wrapped in his cloak, to buy time — and Ali agreed without hesitation, fully aware of what discovery could mean for him. Muhammad slipped out of the house unseen, past the armed men waiting outside, and made his way with Abu Bakr not north toward Yathrib immediately, but south, to throw off pursuit — hiding for three days in a cave on Mount Thawr while Quraysh's search parties combed the routes leading away from the city.",
+        "Even inside the cave, they were kept from starving and from discovery through a careful support network: Abu Bakr's son Abdullah would visit by night to relay news of what Quraysh was planning, while a shepherd in Abu Bakr's employ, Amir ibn Fuhayrah, grazed his flock over their tracks each evening to erase any trace of footsteps leading to the cave's mouth. Abu Bakr's daughter Asma carried food and supplies to them, and when she found she had nothing to tie the provisions with, she tore her own belt in two to make a cord — a detail remembered afterward in the name she carried for the rest of her life, Dhat al-Nitaqayn, 'she of the two belts.' Tradition adds that when Quraysh's search party reached the very mouth of the cave itself, a spider had spun a web across the entrance and a dove had nested just outside it, undisturbed, convincing the searchers that no one could possibly have gone in.",
+        "One tracker, Suraqah ibn Malik, did pick up their trail once they finally set out, drawn by the bounty Quraysh had placed on Muhammad's head, and closed the distance more than once — only for his horse's legs to sink suddenly into the sand each time he got close. Shaken by what felt like a clear sign, Suraqah gave up the chase and asked instead for a written promise of safety for himself, which was granted; he would go on to accept Islam himself, years later, after Makkah's own conquest.",
+        "The travelers reached Quba, on the outskirts of Yathrib, where Muhammad paused to build a simple mosque before completing the final stretch into the city itself. The reception there is remembered as genuine celebration — people lining the streets, children singing, an entire community that had spent two years waiting for exactly this arrival. The Hijrah was complete, and the calendar of the Muslim community would one day be counted from this very migration, rather than from his birth or even the first revelation itself."
+      ]
+    },
+    {
+      title: "Building Madinah",
+      meta: "The mosque, the brotherhood pact, and the Constitution of Madinah",
+      sections: [
+        "Rather than choose the site for his new home and mosque himself, Muhammad let his camel wander freely through the city and simply stopped where she finally knelt — a plot of land used for drying dates, owned by two young orphaned brothers, Sahl and Suhayl. He insisted on paying them for it rather than accepting it as a gift, and construction began on what would become the Prophet's Mosque: plain, unadorned, palm trunks as pillars and palm leaves for a roof, with a few small rooms built alongside it for his household.",
+        "One of his first acts as a community-builder was to pair each emigrant from Makkah, the Muhajireen, with a resident of Madinah, the Ansar, as sworn brothers — sharing homes, wealth, and support until the newcomers were back on their feet. When one Ansari, Sa'd ibn ar-Rabi', offered his new Muhajir brother Abdur Rahman ibn Awf literally half of everything he owned, including the choice of one of his two wives, Abdur Rahman declined every part of it, asking only to be shown the way to the marketplace — within a short time building his own trade and wealth from nothing.",
+        "To hold this new, mixed city together — Muhajireen, Ansar, and the Jewish tribes who had lived in and around Madinah for generations — he drew up a written charter, now remembered as the Constitution of Madinah. It bound all these groups into a single political community with mutual defense obligations, recognized freedom of religious practice for the Jewish tribes as full members of that community, and named Muhammad as the one to whom disputes between any of the groups would be brought for judgment.",
+        "Even something as basic as calling people to prayer had to be worked out fresh. A companion named Abdullah ibn Zayd came to Muhammad describing a dream in which he'd been taught the exact words of a call to prayer, and upon hearing it recited, Muhammad recognized it as true guidance and had it adopted immediately. Bilal — freed years earlier from torture in Makkah — was chosen for his powerful voice to become the first to climb up and call it out over the growing city, five times a day, for the rest of his life.",
+        "Not everyone who emigrated had family or means to fall back on, and a section of the mosque itself was set aside as shelter for these poorer companions, who came to be known as Ahlus Suffah, the People of the Bench — living simply within the mosque grounds, often surviving on whatever charity the rest of the community could spare, while devoting themselves closely to learning directly from Muhammad.",
+        "One companion who joined the community during these years, Salman al-Farisi, had traveled an extraordinarily long road to reach it — born in Persia, he had left his family's Zoroastrian faith to study under a series of Christian monks across the region, each one before dying directing him further on to the next, until the last one told him a prophet was soon to appear in Arabia and described signs by which he could be recognized. Sold into slavery along the way, Salman eventually reached Madinah still enslaved, and upon meeting Muhammad and finding every sign matched what he had been told across all those years of searching, he accepted Islam, and was later helped by the community to purchase his own freedom."
+      ]
+    },
+    {
+      title: "The Battle of Badr",
+      meta: "The first major battle, and a decisive, unlikely victory",
+      sections: [
+        "For over a decade the Muslims had endured persecution without being permitted to fight back at all. Once safely established in Madinah, revelation finally gave permission to take up arms — specifically framed around the injustice of having been driven from their own homes for no reason but their belief.",
+        "Tensions with Quraysh centered heavily on trade: Makkah's wealth depended on caravan routes that now passed uncomfortably close to a Muslim-held city. When word reached Madinah of a large Quraysh caravan returning from Syria under Abu Sufyan, Muhammad set out with a small band of roughly three hundred men, poorly equipped, intending only to intercept it — not to fight a war.",
+        "Abu Sufyan, sensing the danger, diverted the caravan along the coast and sent an urgent call back to Makkah for help. Quraysh responded by sending out a force nearly three times the size of the Muslims', fully armed and mounted, determined to crush the young community outright at a place called Badr.",
+        "The night before the confrontation, Muhammad withdrew alone into a makeshift shelter and prayed with such intensity, raising his hands and pleading that if this small band were lost the message itself might be lost with them, that Abu Bakr eventually came to his side and gently told him he had asked enough — that Allah would surely fulfill what He had promised. Earlier, scouts had gone out to assess the size and strength of the approaching Quraysh force, returning with a careful count of their numbers and supplies so the small Muslim band knew exactly what they faced before the fighting began.",
+        "The night before the battle, rain fell — firming the ground beneath the Muslims' feet while turning the enemy's side muddy and difficult to move across, a detail the Quran itself points to as a small mercy amid the danger. Battle opened, as was customary, with single combat: Hamza, Ali, and Ubaydah ibn al-Harith stepping out to face three of Quraysh's champions and defeating all three before the wider fighting began.",
+        "Despite being outnumbered roughly three to one, the Muslim line held and then broke Quraysh's ranks entirely. Abu Jahl, one of the fiercest and most consistent opponents of the message since its earliest days, was killed on the field. Among the other Quraysh dead was Umayyah ibn Khalaf — the very man who had once pinned Bilal beneath a boulder in the desert heat demanding he renounce his faith. Bilal recognized him among the captives being led away and pressed for his death rather than ransom, a settling of accounts years in the making. Quraysh's forces scattered, leaving behind dead, wounded, and a number of prisoners who were often given the option to earn their freedom by teaching Muslims in Madinah to read and write.",
+        "Badr became the defining proof, in the eyes of the young community, that this was no ordinary military contest — the Quran would later call that day al-Furqan, the Criterion, the moment truth and falsehood were made unmistakably clear to everyone watching."
+      ]
+    },
+    {
+      title: "The Battle of Uhud",
+      meta: "A costly lesson in discipline, after an early advantage was lost",
+      sections: [
+        "Quraysh could not let Badr's humiliation stand. The following year, Abu Sufyan led a much larger force — some three thousand strong — north to Madinah seeking revenge, and made camp near a hill called Uhud, just outside the city.",
+        "Muhammad's own preference was to defend from within Madinah itself, but younger companions, eager to meet the threat directly after Badr's success, argued for going out to face them, and the majority view prevailed. Before the battle, he placed fifty archers on a rise overlooking the field with a direct, unambiguous order: hold this position no matter what happens below, whether we appear to be winning or losing.",
+        "The battle opened well for the Muslims — Quraysh's lines buckled and began to break. Seeing what looked like a clear victory unfolding, most of the archers left their post to join in collecting the spoils being abandoned by the fleeing enemy, despite being reminded of the order. Khalid ibn al-Walid, at that time still a skilled cavalry commander fighting for Quraysh, spotted the now-undefended flank and swept his horsemen around behind the Muslim line, turning apparent victory into chaos within minutes.",
+        "In the confusion, word spread that Muhammad himself had been killed, causing some fighters to lose heart entirely — though in fact he had only been wounded, struck in the face by chain-mail rings driven into his cheek, a tooth broken, blood running down his face, shielded from further harm by a small group of companions who fought fiercely around him until the danger passed.",
+        "His uncle Hamza, one of the heroes of Badr the year before, was killed on the field by an Abyssinian fighter named Wahshi, hired specifically for this purpose by Hind bint Utbah in revenge for her own father and brother slain at Badr — his body mutilated afterward by Hind herself, a brutal detail the seerah does not soften, though both Wahshi and Hind would later set it aside and accept Islam themselves after Makkah's conquest, Wahshi living the rest of his life troubled by what he had done even after his own conversion.",
+        "Amid the chaos of the collapsing line, a woman named Nusaybah bint Ka'b, who had come to the battlefield to help carry water and tend the wounded, took up a sword and shield herself when she saw the danger closing in around Muhammad, fighting to defend him directly and suffering several wounds in the process — remembered ever after as one of the fiercest defenders on the field that day, regardless of the chaos surrounding her.",
+        "Quraysh, despite the reversal in their favor, chose not to press the advantage into a full assault on Madinah itself, and withdrew. In the aftermath, the episode was studied carefully within the community — not as proof the mission had failed, but as a hard lesson that battlefield victory was never guaranteed simply by faith alone, and that discipline and obedience mattered as much as courage. Muhammad would later speak warmly of Uhud itself, the mountain overlooking the battlefield, saying of it that it loved the believers just as the believers loved it in return."
+      ]
+    },
+    {
+      title: "The Battle of the Trench",
+      meta: "A siege broken by a foreign idea, cold weather, and a fractured alliance",
+      sections: [
+        "Two years after Uhud, Quraysh returned with their largest effort yet — a coalition of nearly ten thousand fighters drawn from Quraysh, several allied tribes, and the exiled Jewish tribe of Banu Nadir, who had been expelled from Madinah earlier over a prior act of treachery and now pushed hard for this combined assault.",
+        "Facing a force this size in open battle was clearly untenable. A Persian companion, Salman al-Farisi, suggested something entirely unfamiliar to Arab warfare at the time: digging a deep trench along the city's exposed approach, a defensive tactic from his homeland. Muhammad adopted the idea immediately, and the entire community, himself included, spent days digging alongside one another to complete it before the coalition arrived — hunger grew severe enough during the digging that companions described tying stones against their stomachs to blunt the ache, and Muhammad, working the same shifts as everyone else, was seen doing exactly the same.",
+        "The siege that followed dragged on for roughly a month, through cold weather and dwindling supplies, straining nerves throughout the city and giving voice to doubts among those whose commitment to the community had always been uncertain. A small group of the coalition's horsemen, led by a renowned warrior named Amr ibn Abd Wudd, managed to find a narrow crossing point over the trench and rode across, calling out a challenge for single combat in the old tribal style. Ali stepped forward to answer it, and after a hard-fought duel, killed Amr — a moment that shook the confidence of the remaining coalition riders, who pulled back across the trench rather than press the crossing further.",
+        "Partway through, the situation grew still more dangerous: Banu Qurayza, the one major Jewish tribe still residing within Madinah and still bound by treaty to the city's collective defense, broke that agreement and opened secret talks with the besieging coalition — raising the terrifying possibility of an attack from within the walls at the same moment as the siege pressed from outside. With most of Madinah's fighting men occupied at the trench, the women and children sheltering in the nearby fortresses were left with barely any protection at all; in one fortress, Safiyyah bint Abd al-Muttalib, Muhammad's own aunt, spotted a man scouting the walls and, finding no one else available to stop him, killed him herself and threw his head down among the others below to make the fortress look far better defended than it actually was.",
+        "A companion named Nu'aym ibn Mas'ud, who had secretly accepted Islam without the coalition's knowledge, moved between the different camps sowing careful mistrust — convincing each side that the other could not be relied upon — until the alliance's confidence in itself began to crack from within, without a single additional blow being struck.",
+        "What finally broke the siege outright was a fierce, freezing windstorm that tore through the coalition's camp at night, overturning tents, scattering cooking fires, and shattering morale that had already been thinned by hunger and cold. Abu Sufyan gave the order to withdraw, and the great coalition dispersed without ever forcing a decisive battle.",
+        "With the external threat gone, the community turned to Banu Qurayza's betrayal during the siege. Their fortress was besieged in turn until they surrendered, asking that judgment be passed by Sa'd ibn Mu'adh, a leader they themselves had once counted as an ally before their treaty was broken. Sa'd, already gravely wounded from the fighting, delivered his ruling according to the law they themselves recognized for wartime treason — a severe judgment, and one of the most sobering episodes in the entire seerah, remembered exactly as it happened rather than softened in the retelling."
+      ]
+    },
+    {
+      title: "The Treaty of Hudaybiyyah",
+      meta: "A pilgrimage turned away, and terms that looked like defeat until they weren't",
+      sections: [
+        "Six years after the Hijrah, Muhammad set out from Madinah with some fourteen hundred companions, unarmed and dressed in the simple garb of pilgrims, intending nothing more than to perform Umrah at the Ka'bah he had once been forced to flee. As the group neared Makkah, his riding camel, Qaswa, suddenly knelt and refused to go any further no matter how she was urged on. Companions assumed she was simply exhausted, but Muhammad said she had not stopped out of tiredness — the same restraint that had once held back the war elephant before Makkah generations earlier was holding her back now — and he had the group make camp there instead of forcing her forward. Quraysh, suspicious of the intention despite the pilgrims' unarmed state, blocked the road and refused to let them enter Makkah at all.",
+        "Negotiations dragged on, and when a rumor spread that the Muslim envoy Uthman ibn Affan had been killed inside the city, Muhammad gathered his companions beneath a tree and took a pledge from each of them to fight to the death if it came to that — an event significant enough that the Quran itself refers to it with praise as the Pledge of Ridwan.",
+        "Uthman turned out to be alive, and Quraysh sent Suhayl ibn Amr to negotiate terms directly. What emerged seemed, on its face, humiliating for the Muslims: a ten-year truce, an agreement that the Muslims would turn back this year without completing the Umrah at all, and a clause that any Quraysh who joined the Muslims without their guardian's permission must be returned to Makkah — with no matching obligation running the other way. Even the document's wording became a point of friction, with Suhayl refusing to let it open with 'Muhammad, Messenger of Allah,' forcing it to be changed to simply 'Muhammad, son of Abdullah.'",
+        "Several companions, Umar among them, were visibly troubled by terms that felt entirely one-sided, and Umar went so far as to question the Prophet directly about it. Muhammad's response carried complete certainty that this was, despite appearances, the right course — and he turned out to be right in a way none of them could have predicted at the time.",
+        "With the treaty signed, Muhammad instructed his companions to sacrifice their animals and shave their heads, ending their pilgrim state even though they had not reached the Ka'bah itself — but grief over the outcome left them sitting motionless, unable to bring themselves to begin. His wife Umm Salamah, who had accompanied him on this journey, suggested a simple fix: that he go out and perform the sacrifice and shaving himself first, without repeating the instruction to anyone else. He did exactly that, and the moment the companions saw him act, they rushed to do the same, the standoff breaking at once.",
+        "Revelation soon after described the treaty not as a setback but as a clear victory, and the reason became obvious within the following two years: the truce opened free movement and conversation between Makkah and Madinah for the first time in years, and more people entered Islam during that short peaceful window than had in the entire time since the mission began. One clause even backfired on Quraysh directly — a new Muslim named Abu Basir, sent back to Makkah under the treaty's terms, escaped again and began intercepting Quraysh's own caravans from outside any city's jurisdiction, until Quraysh themselves asked to have that particular clause quietly dropped."
+      ]
+    },
+    {
+      title: "Letters to Kings",
+      meta: "Reaching beyond Arabia — invitations sent to the great powers of the age",
+      sections: [
+        "With Hudaybiyyah's truce finally giving the young community some breathing room, Muhammad turned his attention outward, sending envoys carrying personal letters to the rulers of the region's major powers, inviting each of them to Islam directly rather than waiting for the message to reach them secondhand.",
+        "One letter went to Heraclius, the Byzantine emperor, delivered while he happened to be in the Levant. Curious about this new claimant to prophethood, Heraclius summoned a group of visiting Makkan traders to question them, and by chance Abu Sufyan — still not yet Muslim at that point, and no friend of Muhammad's — was among them. Heraclius asked him a careful series of questions: Muhammad's lineage, whether his followers were growing or shrinking, whether anyone had ever accused him of lying before this claim, whether he had ever broken a promise. Abu Sufyan, unable to answer dishonestly in front of his own companions, gave truthful answers despite himself, and Heraclius concluded from them that this did sound like the description of a true prophet — though political reality kept him from ever acting on that conclusion himself.",
+        "A second letter reached Khosrow II, the Persian emperor, whose reaction was the opposite: insulted at being addressed as an equal rather than a supplicant, he tore the letter apart on the spot. When word of this reached Muhammad, he is reported to have said, simply, that Khosrow's own kingdom would be torn apart in turn — a remark later generations would point to as the Persian empire collapsed within a few decades under the early Muslim conquests.",
+        "The Negus of Abyssinia, who had already sheltered persecuted Muslim refugees years earlier and shown clear sympathy toward the message, received his letter warmly and is held in Islamic tradition to have accepted Islam privately, without ever announcing it publicly to his own court. When news of his death eventually reached Madinah, Muhammad led the funeral prayer for him in absentia, standing before the community to pray for a king most of them had never met, in a land most of them had never seen.",
+        "A letter to the Muqawqis, the Byzantine governor of Egypt, was met with polite respect rather than conversion — he sent back gifts, among them two sisters, Maria and Sirin, sent to Madinah. Maria, who came to be known as Maria al-Qibtiyya, became part of Muhammad's household and was the mother of his son Ibrahim, who died as an infant.",
+        "A further letter went to Badhan, the Persian-appointed governor of Yemen, carried at Khosrow's own earlier instruction to have Muhammad arrested and brought to the Persian court. Before Badhan could act on that order, word reached him that Khosrow had been killed by his own son in a palace uprising — a development Muhammad's letter to him had reportedly predicted. Seeing the prediction fulfilled, Badhan accepted Islam himself and remained governor of Yemen, now representing an entirely different authority than the one that had originally sent him there. Most of these envoys, including a companion named Dihyah al-Kalbi who carried the letter to Heraclius himself, traveled enormous distances alone into the courts of empires that could easily have had them killed for the message they carried — a risk each of them accepted without hesitation."
+      ]
+    },
+    {
+      title: "Khaybar",
+      meta: "A fortress campaign, and a marriage grown from its aftermath",
+      sections: [
+        "North of Madinah lay Khaybar, a cluster of well-fortified oasis settlements belonging to Jewish tribes, some of whom had previously been expelled from Madinah itself and had spent the years since encouraging and helping fund the very coalition that had besieged the city at the Battle of the Trench. Shortly after Hudaybiyyah, Muhammad led an expedition there to neutralize the threat once and for all.",
+        "The campaign moved from fortress to fortress rather than in a single battle, the strongest of them known as Al-Qamus, home to Khaybar's most capable defenders. At one point, after previous commanders had failed to make progress against this particularly stubborn stronghold, Muhammad declared he would give the banner the next day to a man who loved Allah and His Messenger and was loved by them in return. Ali, suffering badly from an eye infection at the time, was brought forward; Muhammad applied his own saliva to Ali's eyes, and by the accounts passed down, the pain and infection left him at once — after which he took the banner and led the assault that finally broke the fortress's defense.",
+        "Among the captives taken was Safiyyah bint Huyay, whose father and husband had both been killed in the fighting. Muhammad freed her and married her, a union that, in the seerah's telling, was received with real dignity on her part despite the circumstances of loss surrounding it, and she remained one of his wives for the rest of his life.",
+        "Once the fighting ended, Muhammad reached an agreement allowing the remaining people of Khaybar to continue farming their own land in exchange for handing over a portion of each harvest — a practical arrangement that let a defeated agricultural community keep functioning rather than being displaced outright.",
+        "Not everything about Khaybar's aftermath was straightforward, either — a Jewish woman named Zaynab bint al-Harith attempted to poison a piece of meat served to Muhammad after the conquest, in revenge for her people's defeat. He was warned by the meat itself, according to the tradition, speaking to him of the poison inside it, and though he spat out the piece he had already tasted, a companion who had swallowed his portion died from it. Muhammad's response to the attempt itself is remembered as restrained rather than vengeful, in keeping with how he had handled hostility throughout his life."
+      ]
+    },
+    {
+      title: "The Household of the Prophet",
+      meta: "Beyond Khadijah — the wives who shaped the community's later memory",
+      sections: [
+        "After Khadijah's death, Muhammad's household grew to include several more wives over the following years, each marriage carrying its own circumstances and, in more than one case, real political or social purpose beyond companionship alone — a pattern common to leadership marriages across that era and region.",
+        "Sawdah bint Zam'ah, an older widow who had emigrated to Abyssinia and back, became his wife not long after Khadijah's death, and in her later years voluntarily gave up her turn in the household rotation to Aisha, wanting simply to remain counted among his wives in the next life without needing the nights herself.",
+        "Aisha bint Abi Bakr, married after the move to Madinah, became by far the most significant source of hadith narrated by any of his wives — her sharp memory and long life afterward meant that an enormous portion of what is known about his private life, his prayer, and his household conduct traces back through her directly. One episode from her life caused real anguish at the time: during a journey, she was accidentally left behind when the caravan moved on without noticing, and was later found and brought back by a companion traveling separately — an entirely innocent occurrence that a small group of people twisted into a slanderous rumor about her character. The household was thrown into weeks of distress until revelation itself descended clearing her name completely and establishing the strict standard of evidence — four witnesses — required before such an accusation could ever be leveled again, a ruling recorded permanently within Surah An-Nur.",
+        "Hafsah bint Umar, daughter of the future second caliph, was widowed young when her first husband died from wounds taken in battle, and her marriage to Muhammad tied his household closer to one of his most trusted companions. Zaynab bint Khuzaymah, known for her generosity toward the poor and given the title Umm al-Masakin, 'mother of the poor,' died only a short time after marrying him.",
+        "Umm Salamah, widowed when her husband died from wounds suffered at Uhud, brought with her a reputation for sharp judgment — it was her counsel, during the tense aftermath of the Hudaybiyyah negotiations, that helped resolve a standoff between Muhammad and companions reluctant to end their pilgrim state, simply by suggesting he perform the required rites himself first without waiting for their agreement, which broke the hesitation at once.",
+        "Zaynab bint Jahsh's marriage came directly out of one of the more socially difficult moments in the seerah — she had previously been married to Zayd ibn Harithah, Muhammad's adopted son, and when that marriage ended, revelation addressed directly the pre-Islamic custom of treating adopted sons as full blood relatives for marriage purposes, permitting the marriage and dismantling that particular taboo by explicit instruction rather than quiet custom.",
+        "Juwayriyyah bint al-Harith came from the Banu Mustaliq after a battle with her tribe, and Muhammad's marriage to her led indirectly to the freeing of a large number of her people who had been taken captive, once other Muslims learned of the new family tie and released their prisoners out of respect for it. Umm Habibah bint Abi Sufyan, daughter of Muhammad's longtime opponent, had emigrated to Abyssinia with her first husband, who abandoned Islam there — her marriage to Muhammad afterward was arranged from a distance, through the Negus himself. Maymunah bint al-Harith, married during a pilgrimage visit to Makkah in the year before its conquest, was his last wife.",
+        "Beyond his wives, his daughter Fatimah held a place of particular closeness in his life — the only one of his children to survive him by any real length of time, married to his cousin Ali, and remembered in later tradition by a description he himself gave her: the leader of the women of Paradise. Their household was famously modest even by the standards of the time, and Muhammad's visits to her home, and hers to his, are among the most tender details preserved anywhere in his biography.",
+        "Together, this household became one of the richest sources of detailed knowledge about his daily life precisely because these were the people who saw him most closely and most often — their recollections, gathered and cross-checked over generations, form a large part of the hadith literature that sits alongside the Quran itself."
+      ]
+    },
+    {
+      title: "The Conquest of Makkah",
+      meta: "A broken truce, a massive march, and a nearly bloodless return home",
+      sections: [
+        "The peace bought by Hudaybiyyah held for less than two years. An ally of Quraysh attacked an allied tribe of the Muslims with covert backing from Quraysh itself, breaking the truce outright. Abu Sufyan hurried to Madinah hoping to patch things over and renew the agreement, but was turned away — the treaty was already void.",
+        "Muhammad marched on Makkah with a force of roughly ten thousand, the largest the city had ever seen approach it, deliberately keeping the exact plan quiet until the last possible moment to minimize any chance of serious resistance or bloodshed. Abu Sufyan himself was intercepted on the way, brought before Muhammad, and accepted Islam before the army ever reached the city gates.",
+        "Entry into Makkah was arranged carefully across multiple points to overwhelm any thought of defense, and aside from a couple of brief, isolated skirmishes quickly contained, the conquest of the city that had persecuted him for over a decade unfolded almost entirely without bloodshed.",
+        "Standing before the very people who had tortured his followers, boycotted his clan, and driven him from his home, Muhammad asked what treatment they expected from him. Hearing them reply that they expected only good, from a noble brother and the son of a noble brother, he answered with words echoing the Quranic story of Yusuf forgiving his own brothers: there was no blame upon them that day, and they were free to go. To make the amnesty concrete rather than just a phrase, criers were sent through Makkah's different quarters declaring that whoever stayed inside their own home, or entered the Ka'bah, or entered the house of Abu Sufyan himself, would be safe — turning his former chief opponent's house into an explicit sanctuary for that day.",
+        "Only a handful of individuals were named as excluded from the general amnesty, for offenses considered serious enough to set apart from ordinary wartime hostility, and even most of these were eventually pardoned once they came forward. Wahshi, who had killed Hamza at Uhud, came and confessed openly, and was forgiven, though Muhammad asked that he keep out of his sight afterward given how the sight of him stirred old grief. Hind bint Utbah, who had mutilated Hamza's body that same day and had opposed the message for two decades, came forward and pledged her allegiance alongside the other women of Makkah, and was received exactly as anyone else who sincerely accepted Islam that day would have been.",
+        "Inside the Ka'bah, some three hundred and sixty idols that had accumulated there over generations were removed and destroyed, restoring the sanctuary to the pure monotheistic purpose it had held, in the seerah's account, since the time of Ibrahim.",
+        "Bilal, the same man once tortured beneath a boulder in this city's streets for refusing to renounce his faith, climbed to the top of the Ka'bah itself and called the adhan out over Makkah — a moment that, more than any battle, marked how completely the years since that torture had turned."
+      ]
+    },
+    {
+      title: "Tabuk and the Final Expeditions",
+      meta: "A grueling march to the frontier, and the last major expedition of his life",
+      sections: [
+        "In the ninth year after the Hijrah, word reached Madinah of a large Byzantine military buildup near the northern frontier, apparently preparing to move against the Muslim community. Muhammad called for a full mobilization, openly this time rather than the usual quiet preparations, given the distance and the seriousness of facing the Byzantine empire directly.",
+        "The march to Tabuk, deep in the punishing heat of an Arabian summer, became remembered as one of the hardest expeditions of the entire era — later tradition simply calls the force that marched that year the 'army of hardship,' for the thirst, exhaustion, and scarce supplies that stretched the community to its limit long before any enemy was even sighted.",
+        "Equipping such a large expedition strained the community's resources badly, and the response to Muhammad's call for donations became one of the most remembered moments of generosity in the seerah: Uthman ibn Affan contributed such a large sum toward the army's supplies that Muhammad said no deed of his from that day forward could ever harm him. Abu Bakr brought everything he owned, and when asked what he had left for his own family, answered simply that he had left them Allah and His Messenger. Umar, determined to finally outdo Abu Bakr in generosity for once, brought half of everything he had, only to find Abu Bakr had again given the whole of his wealth. Not everyone had means to give, however, and a small group of sincere men came to Muhammad in tears, having no mount and no way to join the expedition at all despite genuinely wanting to; unable to provide for them either, he had to turn them away, and they are remembered afterward as al-Bakka'un, the weeping ones.",
+        "In the end, no battle took place at all — the anticipated Byzantine force had either not gathered in the strength reported, or withdrew before any engagement, and Muhammad's army reached the frontier, secured agreements with several local tribes and settlements along the way, and returned to Madinah without a single major clash.",
+        "The expedition's real significance turned out to lie in who had failed to join it. Nearly all of the community's genuine believers made the difficult journey despite the hardship, while a handful of habitual excuse-makers stayed behind under transparent pretexts. Three men, however — among them Ka'b ibn Malik — had no valid excuse at all and simply admitted the plain truth when asked, rather than inventing one.",
+        "For this honesty, they were treated more severely than the outright hypocrites: the whole community was instructed to stop speaking to them entirely, even within their own families, for fifty days. Ka'b later described this period as the hardest of his life, the city itself feeling changed and unfamiliar around him. Only after those fifty days, and after his own repentance had visibly deepened throughout them, did revelation arrive accepting the sincerity of what he and the other two had shown by telling the truth even when it cost them dearly — a story often kept in the seerah specifically for what it teaches about honesty over convenient excuse.",
+        "On the return march, Muhammad also ordered the destruction of a mosque that had been built by a group of hypocrites in Madinah under the pretense of piety, but which revelation identified as having been built instead to divide the believers and provide cover for those working against the community from within — remembered since as Masjid ad-Dirar, the Mosque of Harm.",
+        "Tabuk turned out to be the last major expedition of his life. What remained afterward was consolidation rather than conquest — delegations arriving from across the Arabian Peninsula to declare their communities' acceptance of Islam, in such numbers that the year that followed is remembered as the Year of Delegations, before the final pilgrimage that would close the seerah's account of his life on earth."
+      ]
+    },
+    {
+      title: "The Farewell Sermon and the Final Days",
+      meta: "The last pilgrimage, the completion of the message, and his death",
+      sections: [
+        "In the tenth year after the Hijrah, Muhammad led what would become known as his Farewell Pilgrimage, joined by well over a hundred thousand companions — by far the largest gathering of his life, and one that felt, to many present, like something was being brought to a close.",
+        "At Arafat, he delivered a sermon that gathered together the core of everything he had spent over two decades teaching: the sanctity of life and property, an end to the blood feuds and interest-based debts of pre-Islamic custom, clear instruction on the rights owed to women and an instruction to treat them with kindness since they had been taken as a trust, and a declaration that no Arab held any superiority over a non-Arab, nor white over black, except through righteousness alone. He reminded them that he was leaving behind the Quran and his own example as guidance, and asked them directly, repeatedly, whether he had delivered the message in full — and each time, the crowd answered as one that he had, at which he raised a finger toward the sky and called on Allah to bear witness to what they had just said.",
+        "It was during this same pilgrimage that a verse was revealed declaring the religion complete and the favor of guidance perfected — words several of his closest companions received with quiet tears, sensing in them that his own time remaining was now short.",
+        "Back in Madinah, his health began to decline, marked by severe headaches and a fever that left him weak for an extended stretch. In these final weeks he is remembered giving away what remained of his personal wealth so that nothing would be left behind, and freeing those he still held in servitude, wanting to meet Allah owing nothing and owning little. Too weak to lead the congregational prayer himself in his last days, he asked Abu Bakr to lead it in his place — a small instruction that would carry enormous weight in the days immediately following his death.",
+        "He passed away in the room of his wife Aisha, his head resting against her chest, in the eleventh year after the Hijrah, his final words reported as an invocation of the highest companionship rather than any worldly concern. The news struck the community with a shock bordering on disbelief; some, including Umar, could not accept it at first and stood before the gathering insisting he had only stepped away as Musa once had, and would return. It was Abu Bakr who stood before the gathered Muslims and steadied them with words that have been repeated ever since: whoever used to worship Muhammad should know that Muhammad has died, but whoever worships Allah should know that Allah is Ever-Living and does not die — followed by the Quranic verse reminding them that all messengers before him had passed away in their turn as well. Ali and a small group of close family washed his body for burial, while the wider community, still reeling, gathered to decide who would now lead them — a discussion that unfolded at a place called Saqifah and concluded with Abu Bakr chosen as the first caliph.",
+        "He was buried in the same room where he died, beside Aisha's own quarters, a modest resting place that would later be enclosed within the growing Prophet's Mosque itself. What began with a frightened man fleeing a cave on Hira, uncertain whether he could bear what had just been placed on him, closed here — with a message that had reshaped the Arabian Peninsula in little more than two decades, and a community left to carry it onward without him."
+      ]
+    }
+  ];
+
+  var els = {
+    chapterNav: document.getElementById("chapterNav"),
+    chapterTitle: document.getElementById("chapterTitle"),
+    chapterMeta: document.getElementById("chapterMeta"),
+    chapterBody: document.getElementById("chapterBody")
+  };
+
+  var currentChapter = 0;
+
+  function renderNav(){
+    els.chapterNav.innerHTML = CHAPTERS.map(function(ch, i){
+      return '<button data-i="' + i + '" class="' + (i === currentChapter ? "active" : "") + '">' + ch.title + '</button>';
+    }).join("") + '<button disabled style="opacity:0.4;">More chapters coming soon</button>';
+  }
+
+  function renderChapter(i){
+    currentChapter = i;
+    var chapter = CHAPTERS[i];
+    els.chapterTitle.textContent = chapter.title;
+    els.chapterMeta.textContent = chapter.meta;
+    els.chapterBody.innerHTML = chapter.sections.map(function(text, si){
+      return '<div class="section">' +
+        '<p>' + text + '</p>' +
+        '<button class="narrate-btn" data-text="' + escapeAttr(text) + '">&#9835; Narrate</button>' +
+        '</div>';
+    }).join("");
+    renderNav();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function escapeAttr(str){
+    return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  }
+
+  els.chapterNav.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-i]");
+    if(!btn) return;
+    renderChapter(parseInt(btn.getAttribute("data-i"), 10));
+  });
+
+  els.chapterBody.addEventListener("click", function(e){
+    var btn = e.target.closest(".narrate-btn");
+    if(!btn) return;
+    var text = btn.getAttribute("data-text");
+    btn.textContent = "Speaking…";
+    speakText(text, function(){ btn.innerHTML = "&#9835; Narrate"; });
+  });
+
+  // Same on-device speech approach as index.html and hadith.html. Full
+  // generated-audio support can be wired in later the same way, reusing
+  // the same localStorage keys the main app already uses for the API key
+  // and chosen voice.
+  function speakText(text, onDone){
+    if(!("speechSynthesis" in window)){ onDone(); return; }
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.95;
+    utter.onend = onDone;
+    utter.onerror = onDone;
+    window.speechSynthesis.speak(utter);
+  }
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+
+  renderChapter(0);
+</script>
+</body>
+</html>
