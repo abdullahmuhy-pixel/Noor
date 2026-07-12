@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Fara'id Calculator — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink);
+    padding-bottom:40px;
+  }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 4px; }
+  .tagline{ font-size:0.8rem; opacity:0.7; margin:0; }
+  main{ max-width:640px; margin:0 auto; padding:20px; }
+  .card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:14px; padding:18px; margin-bottom:16px;
+  }
+  .card h2{ font-family:'Amiri',serif; font-size:1.15rem; margin:0 0 12px; color:var(--gold); }
+  .field{ margin-bottom:14px; }
+  label{ display:block; font-size:0.85rem; margin-bottom:5px; opacity:0.85; }
+  .hint{ font-size:0.72rem; opacity:0.6; margin-top:3px; }
+  input[type=number], select{
+    width:100%; padding:10px 12px; border-radius:10px;
+    border:1px solid rgba(169,128,63,0.35); background:var(--parchment);
+    color:var(--ink); font-size:0.95rem; font-family:'Inter',sans-serif;
+  }
+  .row{ display:flex; gap:10px; }
+  .row > div{ flex:1; }
+  button.primary{
+    width:100%; padding:14px; border-radius:12px; border:none;
+    background:var(--gold); color:var(--ink); font-weight:700; font-size:1rem;
+    cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .result{ display:none; margin-bottom:16px; }
+  .result.show{ display:block; }
+  .heir-row{
+    background:var(--ink); color:var(--parchment); border-radius:12px;
+    padding:14px 16px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .heir-row .name{ font-size:0.95rem; }
+  .heir-row .share{ font-family:'Amiri',serif; font-size:1.2rem; color:var(--gold-soft); }
+  .excluded-note{
+    background:rgba(169,128,63,0.1); border:1px solid rgba(169,128,63,0.25);
+    border-radius:10px; padding:12px 14px; font-size:0.82rem; margin-top:10px; opacity:0.85;
+  }
+  .note{ font-size:0.78rem; opacity:0.7; line-height:1.5; margin-top:14px; }
+  .warning{
+    background:rgba(169,60,60,0.1); border:1px solid rgba(169,60,60,0.3);
+    border-radius:10px; padding:12px 14px; font-size:0.82rem; margin-bottom:16px; line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Noor</a>
+  <h1>Fara'id Calculator</h1>
+  <p class="tagline">Islamic inheritance shares, calculated per the classical fixed-share system.</p>
+</header>
+
+<main>
+  <div class="warning">
+    This tool covers the most common heir combinations (spouse, children, parents, siblings) under
+    mainstream Sunni fiqh. It does not model grandparents/grandchildren as substitute heirs, multiple
+    layers of extended agnatic relatives, waqf/wasiyyah interactions, or differences between madhabs
+    on edge cases. For any real estate distribution, please have the result verified by a qualified
+    scholar — this is a study/estimation aid, not a legal or religious ruling.
+  </div>
+
+  <div class="card">
+    <h2>The deceased</h2>
+    <div class="field">
+      <label for="deceasedGender">Deceased was</label>
+      <select id="deceasedGender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Surviving spouse(s)</h2>
+    <div class="field" id="spouseFieldMale">
+      <label for="wivesCount">Number of surviving wives (0 if none)</label>
+      <input type="number" id="wivesCount" min="0" max="4" value="0">
+    </div>
+    <div class="field" id="spouseFieldFemale" style="display:none;">
+      <label for="hasHusband">Surviving husband?</label>
+      <select id="hasHusband">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Children</h2>
+    <div class="row">
+      <div class="field">
+        <label for="sons">Sons</label>
+        <input type="number" id="sons" min="0" value="0">
+      </div>
+      <div class="field">
+        <label for="daughters">Daughters</label>
+        <input type="number" id="daughters" min="0" value="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Parents</h2>
+    <div class="row">
+      <div class="field">
+        <label for="fatherAlive">Father surviving?</label>
+        <select id="fatherAlive"><option value="no">No</option><option value="yes">Yes</option></select>
+      </div>
+      <div class="field">
+        <label for="motherAlive">Mother surviving?</label>
+        <select id="motherAlive"><option value="no">No</option><option value="yes">Yes</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Siblings</h2>
+    <div class="hint" style="margin-bottom:10px;">Only relevant if there's no father and no children/grandchildren through a son — otherwise siblings are excluded automatically.</div>
+    <div class="row">
+      <div class="field">
+        <label for="fullBrothers">Full brothers</label>
+        <input type="number" id="fullBrothers" min="0" value="0">
+      </div>
+      <div class="field">
+        <label for="fullSisters">Full sisters</label>
+        <input type="number" id="fullSisters" min="0" value="0">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="paternalBrothers">Paternal (consanguine) brothers</label>
+        <input type="number" id="paternalBrothers" min="0" value="0">
+      </div>
+      <div class="field">
+        <label for="paternalSisters">Paternal (consanguine) sisters</label>
+        <input type="number" id="paternalSisters" min="0" value="0">
+      </div>
+    </div>
+    <div class="field">
+      <label for="uterineSiblings">Maternal (uterine) siblings — total count, any gender</label>
+      <input type="number" id="uterineSiblings" min="0" value="0">
+      <div class="hint">Uterine siblings (same mother, different father) all receive equal shares regardless of gender, unlike other sibling classes.</div>
+    </div>
+  </div>
+
+  <button class="primary" id="calcBtn">Calculate Shares</button>
+
+  <div class="result" id="resultBox">
+    <h2 style="font-family:'Amiri',serif; margin:20px 0 12px;">Distribution</h2>
+    <div id="heirsList"></div>
+    <div class="excluded-note" id="excludedNote" style="display:none;"></div>
+    <div class="excluded-note" id="methodNote" style="display:none;"></div>
+  </div>
+</main>
+
+<script>
+  var els = {
+    deceasedGender: document.getElementById("deceasedGender"),
+    spouseFieldMale: document.getElementById("spouseFieldMale"),
+    spouseFieldFemale: document.getElementById("spouseFieldFemale"),
+    wivesCount: document.getElementById("wivesCount"),
+    hasHusband: document.getElementById("hasHusband"),
+    sons: document.getElementById("sons"),
+    daughters: document.getElementById("daughters"),
+    fatherAlive: document.getElementById("fatherAlive"),
+    motherAlive: document.getElementById("motherAlive"),
+    fullBrothers: document.getElementById("fullBrothers"),
+    fullSisters: document.getElementById("fullSisters"),
+    paternalBrothers: document.getElementById("paternalBrothers"),
+    paternalSisters: document.getElementById("paternalSisters"),
+    uterineSiblings: document.getElementById("uterineSiblings"),
+    calcBtn: document.getElementById("calcBtn"),
+    resultBox: document.getElementById("resultBox"),
+    heirsList: document.getElementById("heirsList"),
+    excludedNote: document.getElementById("excludedNote"),
+    methodNote: document.getElementById("methodNote")
+  };
+
+  els.deceasedGender.addEventListener("change", function(){
+    var isMale = els.deceasedGender.value === "male";
+    els.spouseFieldMale.style.display = isMale ? "block" : "none";
+    els.spouseFieldFemale.style.display = isMale ? "none" : "block";
+  });
+
+  function num(el){ return parseInt(el.value, 10) || 0; }
+
+  function calculate(){
+    var deceasedMale = els.deceasedGender.value === "male";
+    var wives = deceasedMale ? Math.min(num(els.wivesCount), 4) : 0;
+    var husband = !deceasedMale && els.hasHusband.value === "yes";
+    var sons = num(els.sons);
+    var daughters = num(els.daughters);
+    var father = els.fatherAlive.value === "yes";
+    var mother = els.motherAlive.value === "yes";
+    var fullBrothers = num(els.fullBrothers);
+    var fullSisters = num(els.fullSisters);
+    var paternalBrothers = num(els.paternalBrothers);
+    var paternalSisters = num(els.paternalSisters);
+    var uterine = num(els.uterineSiblings);
+
+    var hasChildren = (sons + daughters) > 0;
+    var hasSon = sons > 0;
+
+    // ---- Exclusion rules (hujb) ----
+    // A son excludes all sibling classes entirely.
+    // A father excludes all sibling classes entirely.
+    // Presence of a full brother/sister (as a class) excludes consanguine siblings
+    // from being residuary heirs alongside them if full siblings already fill that role,
+    // but for simplicity, when full siblings exist as residuaries, consanguine siblings
+    // are excluded from the residue (standard rule: nearer agnate excludes farther).
+    var siblingsExcluded = hasSon || father;
+    var effFullBrothers = siblingsExcluded ? 0 : fullBrothers;
+    var effFullSisters = siblingsExcluded ? 0 : fullSisters;
+    var hasFullSiblingResiduary = (effFullBrothers + effFullSisters) > 0;
+    var effPaternalBrothers = (siblingsExcluded || hasFullSiblingResiduary) ? 0 : paternalBrothers;
+    var effPaternalSisters = (siblingsExcluded || hasFullSiblingResiduary) ? 0 : paternalSisters;
+    // Uterine siblings excluded by any child, by father, or by grandfather (not modeled).
+    var effUterine = (siblingsExcluded || hasChildren) ? 0 : uterine;
+
+    var shares = []; // {name, fraction, isResiduary, isSpouse}
+    var excludedNotes = [];
+
+    if(siblingsExcluded && (fullBrothers + fullSisters + paternalBrothers + paternalSisters + uterine) > 0){
+      excludedNotes.push("Siblings are excluded from inheritance because " +
+        (hasSon ? "a son is" : "a father is") + " present.");
+    } else if(hasChildren && uterine > 0){
+      excludedNotes.push("Maternal (uterine) siblings are excluded because the deceased left children.");
+    }
+
+    // ---- Gharrawayn / Umariyyatayn special case ----
+    // Exactly {spouse, mother, father}, no children, no other heirs at all.
+    var onlySpouseParents = !hasChildren && (father && mother) &&
+      (effFullBrothers + effFullSisters + effPaternalBrothers + effPaternalSisters + effUterine) === 0 &&
+      ((deceasedMale && wives > 0 && wives <= 1) || (!deceasedMale && husband)) &&
+      !(deceasedMale && wives > 1); // keep the classical case to a single wife or husband
+
+    var remainder = 1;
+    var motherGetsGharrawayn = false;
+
+    // ---- Spouse share ----
+    if(deceasedMale && wives > 0){
+      var wifeShare = hasChildren ? (1/8) : (1/4);
+      shares.push({ name: wives === 1 ? "Wife" : (wives + " wives (total, split equally)"), fraction: wifeShare, isSpouse: true });
+      remainder -= wifeShare;
+    } else if(!deceasedMale && husband){
+      var husbandShare = hasChildren ? (1/4) : (1/2);
+      shares.push({ name: "Husband", fraction: husbandShare, isSpouse: true });
+      remainder -= husbandShare;
+    }
+
+    // ---- Mother's share ----
+    var siblingCountForHujb = effFullBrothers + effFullSisters + effPaternalBrothers + effPaternalSisters + effUterine;
+    if(mother){
+      var motherFraction;
+      if(onlySpouseParents){
+        motherFraction = (1/3) * remainder; // 1/3 of what's left after spouse
+        motherGetsGharrawayn = true;
+      } else if(hasChildren || siblingCountForHujb >= 2){
+        motherFraction = 1/6;
+      } else {
+        motherFraction = 1/3;
+      }
+      shares.push({ name: "Mother", fraction: motherFraction });
+      remainder -= motherFraction;
+    }
+
+    // ---- Father's fixed 1/6 (if there are children); residue handled later ----
+    var fatherFixedGiven = false;
+    if(father){
+      if(hasChildren){
+        var fatherFraction = onlySpouseParents ? remainder : (1/6);
+        // in onlySpouseParents case father takes residue directly, handled below instead
+        if(!onlySpouseParents){
+          shares.push({ name: "Father", fraction: 1/6 });
+          remainder -= 1/6;
+          fatherFixedGiven = true;
+        }
+      }
+    }
+
+    // ---- Daughters (fixed share only if no son) ----
+    var daughterFraction = 0;
+    if(daughters > 0 && !hasSon){
+      daughterFraction = daughters === 1 ? 0.5 : (2/3);
+      shares.push({ name: daughters === 1 ? "Daughter" : (daughters + " daughters (total, split equally)"), fraction: daughterFraction });
+      remainder -= daughterFraction;
+    }
+
+    // ---- Uterine siblings (fixed share) ----
+    if(effUterine > 0){
+      var uterineFraction = effUterine === 1 ? (1/6) : (1/3);
+      shares.push({ name: effUterine + " uterine sibling(s) (total, split equally)", fraction: uterineFraction });
+      remainder -= uterineFraction;
+    }
+
+    // ---- Residue / asaba (residuary heirs), in priority order ----
+    var residuaryAssigned = false;
+
+    if(onlySpouseParents && father){
+      // Father takes whatever remains after spouse + mother's 1/3-of-remainder share
+      if(remainder > 0.0001){
+        shares.push({ name: "Father (residuary)", fraction: remainder, isResiduary: true });
+        remainder = 0;
+        residuaryAssigned = true;
+        fatherFixedGiven = true;
+      }
+    } else if(hasSon || (daughters > 0 && hasSon)){
+      // handled below in unified son+daughter block
+    }
+
+    if(!residuaryAssigned && hasSon){
+      // Sons (and daughters with them) take the entire remainder in 2:1 ratio
+      var shareUnits = sons * 2 + daughters;
+      if(remainder > 0.0001 && shareUnits > 0){
+        var perUnit = remainder / shareUnits;
+        shares.push({ name: sons + " son(s)", fraction: perUnit * 2 * sons, isResiduary: true, perSonNote: true });
+        if(daughters > 0){
+          shares.push({ name: daughters + " daughter(s) (residuary, with brothers)", fraction: perUnit * daughters, isResiduary: true });
+        }
+        remainder = 0;
+        residuaryAssigned = true;
+      }
+    }
+
+    if(!residuaryAssigned && father && hasChildren && !fatherFixedGiven){
+      // (daughters only, no son): father already took fixed 1/6 above; if remainder left and
+      // no other agnate closer, father also takes residue as asaba
+      if(remainder > 0.0001){
+        shares.push({ name: "Father (residuary, remainder)", fraction: remainder, isResiduary: true });
+        remainder = 0;
+        residuaryAssigned = true;
+      }
+    } else if(!residuaryAssigned && father && !hasChildren && !onlySpouseParents){
+      if(remainder > 0.0001){
+        shares.push({ name: "Father (residuary)", fraction: remainder, isResiduary: true });
+        remainder = 0;
+        residuaryAssigned = true;
+      }
+    }
+
+    if(!residuaryAssigned && !hasSon && daughters > 0 && (effFullBrothers + effFullSisters) > 0){
+      // Daughters took fixed share above; full brothers/sisters take the residue as asaba
+      var fbUnits = effFullBrothers * 2 + effFullSisters;
+      if(remainder > 0.0001 && fbUnits > 0){
+        var fbPerUnit = remainder / fbUnits;
+        if(effFullBrothers > 0) shares.push({ name: effFullBrothers + " full brother(s)", fraction: fbPerUnit * 2 * effFullBrothers, isResiduary: true });
+        if(effFullSisters > 0) shares.push({ name: effFullSisters + " full sister(s) (residuary, with brothers)", fraction: fbPerUnit * effFullSisters, isResiduary: true });
+        remainder = 0;
+        residuaryAssigned = true;
+      }
+    } else if(!residuaryAssigned && (effFullBrothers + effFullSisters) > 0){
+      var fbUnits2 = effFullBrothers * 2 + effFullSisters;
+      if(remainder > 0.0001 && fbUnits2 > 0){
+        var fbPerUnit2 = remainder / fbUnits2;
+        if(effFullBrothers > 0) shares.push({ name: effFullBrothers + " full brother(s)", fraction: fbPerUnit2 * 2 * effFullBrothers, isResiduary: true });
+        if(effFullSisters > 0) shares.push({ name: effFullSisters + " full sister(s)", fraction: fbPerUnit2 * effFullSisters, isResiduary: true });
+        remainder = 0;
+        residuaryAssigned = true;
+      }
+    }
+
+    if(!residuaryAssigned && (effPaternalBrothers + effPaternalSisters) > 0){
+      var pbUnits = effPaternalBrothers * 2 + effPaternalSisters;
+      if(remainder > 0.0001 && pbUnits > 0){
+        var pbPerUnit = remainder / pbUnits;
+        if(effPaternalBrothers > 0) shares.push({ name: effPaternalBrothers + " paternal brother(s)", fraction: pbPerUnit * 2 * effPaternalBrothers, isResiduary: true });
+        if(effPaternalSisters > 0) shares.push({ name: effPaternalSisters + " paternal sister(s)", fraction: pbPerUnit * effPaternalSisters, isResiduary: true });
+        remainder = 0;
+        residuaryAssigned = true;
+      }
+    }
+
+    var totalAssigned = shares.reduce(function(sum, s){ return sum + s.fraction; }, 0);
+    var methodNote = "";
+
+    // ---- Awl (proportional reduction if shares exceed the whole estate) ----
+    if(totalAssigned > 1.0001){
+      var scale = 1 / totalAssigned;
+      shares.forEach(function(s){ s.fraction *= scale; });
+      methodNote = "The fixed shares claimed exceeded the full estate, so all shares were " +
+        "proportionally reduced (awl) to fit exactly within 100% — this is a recognized classical " +
+        "adjustment, not an error.";
+      totalAssigned = 1;
+      remainder = 0;
+    }
+    // ---- Radd (return surplus proportionally if no residuary heir absorbed it) ----
+    else if(remainder > 0.0001 && !residuaryAssigned && shares.length > 0){
+      var nonSpouseShares = shares.filter(function(s){ return !s.isSpouse; });
+      var nonSpouseTotal = nonSpouseShares.reduce(function(sum, s){ return sum + s.fraction; }, 0);
+      if(nonSpouseTotal > 0){
+        var raddScale = (nonSpouseTotal + remainder) / nonSpouseTotal;
+        nonSpouseShares.forEach(function(s){ s.fraction *= raddScale; });
+        methodNote = "No residuary heir was present to absorb the remaining " +
+          (remainder * 100).toFixed(1) + "% of the estate, so it was returned proportionally " +
+          "(radd) to the fixed-share heirs other than the spouse — per the majority classical view " +
+          "that a spouse does not participate in radd.";
+        remainder = 0;
+      } else {
+        methodNote = "There's a remaining " + (remainder * 100).toFixed(1) + "% of the estate with " +
+          "no eligible heir identified in this tool to receive it under the standard rules modeled " +
+          "here — this may indicate a heir combination beyond this tool's scope. Please consult a scholar.";
+      }
+    }
+
+    return { shares: shares, excludedNotes: excludedNotes, methodNote: methodNote };
+  }
+
+  els.calcBtn.addEventListener("click", function(){
+    var result = calculate();
+
+    if(result.shares.length === 0){
+      els.heirsList.innerHTML = '<div class="excluded-note">No heirs entered — add at least one surviving relative above.</div>';
+    } else {
+      els.heirsList.innerHTML = result.shares.map(function(s){
+        var pct = (s.fraction * 100).toFixed(2).replace(/\.00$/, "");
+        return '<div class="heir-row"><span class="name">' + s.name + '</span><span class="share">' + pct + '%</span></div>';
+      }).join("");
+    }
+
+    if(result.excludedNotes.length){
+      els.excludedNote.style.display = "block";
+      els.excludedNote.innerHTML = result.excludedNotes.join("<br>");
+    } else {
+      els.excludedNote.style.display = "none";
+    }
+
+    if(result.methodNote){
+      els.methodNote.style.display = "block";
+      els.methodNote.textContent = result.methodNote;
+    } else {
+      els.methodNote.style.display = "none";
+    }
+
+    els.resultBox.classList.add("show");
+    els.resultBox.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+</script>
+</body>
+</html>

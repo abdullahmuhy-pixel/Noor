@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Zakat Calculator — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink);
+    padding-bottom:40px;
+  }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 4px; }
+  .tagline{ font-size:0.8rem; opacity:0.7; margin:0; }
+  main{ max-width:640px; margin:0 auto; padding:20px; }
+  .card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:14px; padding:18px; margin-bottom:16px;
+  }
+  .card h2{ font-family:'Amiri',serif; font-size:1.15rem; margin:0 0 12px; color:var(--gold); }
+  .field{ margin-bottom:14px; }
+  label{ display:block; font-size:0.85rem; margin-bottom:5px; opacity:0.85; }
+  .hint{ font-size:0.72rem; opacity:0.6; margin-top:3px; }
+  input[type=number], select{
+    width:100%; padding:10px 12px; border-radius:10px;
+    border:1px solid rgba(169,128,63,0.35); background:var(--parchment);
+    color:var(--ink); font-size:0.95rem; font-family:'Inter',sans-serif;
+  }
+  .row{ display:flex; gap:10px; }
+  .row > div{ flex:1; }
+  button.primary{
+    width:100%; padding:14px; border-radius:12px; border:none;
+    background:var(--gold); color:var(--ink); font-weight:700; font-size:1rem;
+    cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .result{
+    background:var(--ink); color:var(--parchment); border-radius:14px;
+    padding:20px; text-align:center; display:none; margin-bottom:16px;
+  }
+  .result.show{ display:block; }
+  .result .amount{ font-family:'Amiri',serif; font-size:2.2rem; color:var(--gold-soft); margin:6px 0; }
+  .result .label{ font-size:0.85rem; opacity:0.8; }
+  .breakdown{ font-size:0.85rem; text-align:left; margin-top:16px; border-top:1px solid rgba(217,192,143,0.25); padding-top:14px; }
+  .breakdown div{ display:flex; justify-content:space-between; padding:4px 0; }
+  .note{ font-size:0.78rem; opacity:0.7; line-height:1.5; margin-top:14px; }
+  .radio-group{ display:flex; gap:16px; }
+  .radio-group label{ display:flex; align-items:center; gap:6px; font-size:0.85rem; margin:0; }
+  .radio-group input{ width:auto; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Noor</a>
+  <h1>Zakat Calculator</h1>
+  <p class="tagline">Work out what you owe, based on standard nisab and rate.</p>
+</header>
+
+<main>
+  <div class="result" id="resultBox">
+    <div class="label">Zakat due</div>
+    <div class="amount" id="zakatAmount">—</div>
+    <div class="breakdown" id="breakdown"></div>
+  </div>
+
+  <div class="card">
+    <h2>Nisab standard</h2>
+    <div class="field">
+      <div class="radio-group">
+        <label><input type="radio" name="nisabStandard" value="silver" checked> Silver (lower, more precautionary)</label>
+      </div>
+      <div class="radio-group" style="margin-top:8px;">
+        <label><input type="radio" name="nisabStandard" value="gold"> Gold (higher threshold)</label>
+      </div>
+      <div class="hint">
+        Silver nisab (612.36g) is generally recommended by contemporary scholars for cash-based
+        wealth since it's more inclusive of those who owe zakat. Gold nisab (87.48g) is the other
+        classically valid standard. Both are legitimate positions — choose per your own scholarly guidance.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Current market prices</h2>
+    <div class="row">
+      <div class="field">
+        <label for="goldPrice">Gold price (per gram, your currency)</label>
+        <input type="number" id="goldPrice" min="0" step="0.01" placeholder="e.g. 1450">
+      </div>
+      <div class="field">
+        <label for="silverPrice">Silver price (per gram)</label>
+        <input type="number" id="silverPrice" min="0" step="0.01" placeholder="e.g. 18">
+      </div>
+    </div>
+    <div class="hint">Check today's price via your bank, a bullion dealer, or a site like goldprice.org — prices change daily and this tool doesn't fetch them automatically.</div>
+  </div>
+
+  <div class="card">
+    <h2>Your zakatable assets</h2>
+    <div class="field">
+      <label for="cash">Cash, bank balances &amp; money owed to you</label>
+      <input type="number" id="cash" min="0" step="0.01" placeholder="0">
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="goldGrams">Gold you own (grams)</label>
+        <input type="number" id="goldGrams" min="0" step="0.01" placeholder="0">
+      </div>
+      <div class="field">
+        <label for="silverGrams">Silver you own (grams)</label>
+        <input type="number" id="silverGrams" min="0" step="0.01" placeholder="0">
+      </div>
+    </div>
+    <div class="field">
+      <label for="business">Business inventory &amp; trade goods (market value)</label>
+      <input type="number" id="business" min="0" step="0.01" placeholder="0">
+    </div>
+    <div class="field">
+      <label for="investments">Investments, shares, crypto (current value)</label>
+      <input type="number" id="investments" min="0" step="0.01" placeholder="0">
+      <div class="hint">For shares in companies whose core business isn't zakatable-neutral, some scholars require zakat only on the company's underlying liquid/inventory assets rather than full market value — a nuance worth checking with a scholar for large holdings.</div>
+    </div>
+    <div class="field">
+      <label for="debts">Debts due for payment now (money you owe others)</label>
+      <input type="number" id="debts" min="0" step="0.01" placeholder="0">
+      <div class="hint">Only debts currently due, not your full long-term mortgage balance, for example.</div>
+    </div>
+  </div>
+
+  <button class="primary" id="calcBtn">Calculate Zakat</button>
+
+  <div class="note">
+    This tool estimates zakat on common liquid asset types using the standard 2.5% (1/40) rate on
+    wealth held for one lunar year. It does not cover livestock, agricultural produce (which use
+    different rates), or complex business/partnership structures. For anything beyond straightforward
+    cash, gold, silver, and investments, or if you're unsure about your specific situation, please
+    verify with a qualified scholar.
+  </div>
+</main>
+
+<script>
+  var els = {
+    cash: document.getElementById("cash"),
+    goldGrams: document.getElementById("goldGrams"),
+    silverGrams: document.getElementById("silverGrams"),
+    business: document.getElementById("business"),
+    investments: document.getElementById("investments"),
+    debts: document.getElementById("debts"),
+    goldPrice: document.getElementById("goldPrice"),
+    silverPrice: document.getElementById("silverPrice"),
+    calcBtn: document.getElementById("calcBtn"),
+    resultBox: document.getElementById("resultBox"),
+    zakatAmount: document.getElementById("zakatAmount"),
+    breakdown: document.getElementById("breakdown")
+  };
+
+  var GOLD_NISAB_GRAMS = 87.48;
+  var SILVER_NISAB_GRAMS = 612.36;
+
+  function num(el){ return parseFloat(el.value) || 0; }
+
+  els.calcBtn.addEventListener("click", function(){
+    var cash = num(els.cash);
+    var goldGrams = num(els.goldGrams);
+    var silverGrams = num(els.silverGrams);
+    var business = num(els.business);
+    var investments = num(els.investments);
+    var debts = num(els.debts);
+    var goldPrice = num(els.goldPrice);
+    var silverPrice = num(els.silverPrice);
+
+    var goldValue = goldGrams * goldPrice;
+    var silverValue = silverGrams * silverPrice;
+
+    var totalWealth = cash + goldValue + silverValue + business + investments - debts;
+    if(totalWealth < 0) totalWealth = 0;
+
+    var standard = document.querySelector('input[name="nisabStandard"]:checked').value;
+    var nisabValue;
+    if(standard === "gold"){
+      nisabValue = GOLD_NISAB_GRAMS * (goldPrice || 0);
+    } else {
+      nisabValue = SILVER_NISAB_GRAMS * (silverPrice || 0);
+    }
+
+    if(!nisabValue){
+      els.breakdown.innerHTML = "<div>Enter the current " + (standard === 'gold' ? 'gold' : 'silver') + " price above to calculate your nisab threshold.</div>";
+      els.zakatAmount.textContent = "—";
+      els.resultBox.classList.add("show");
+      return;
+    }
+
+    var meetsNisab = totalWealth >= nisabValue;
+    var zakatDue = meetsNisab ? totalWealth * 0.025 : 0;
+
+    els.zakatAmount.textContent = meetsNisab
+      ? zakatDue.toLocaleString(undefined, { maximumFractionDigits: 2 })
+      : "Not due";
+
+    var lines = [];
+    lines.push(row("Total zakatable wealth", totalWealth));
+    lines.push(row("Nisab threshold (" + standard + ")", nisabValue));
+    if(!meetsNisab){
+      lines.push('<div style="margin-top:8px; opacity:0.85;">Your wealth is below the nisab threshold, so no zakat is due this year — though it\'s still worth checking again once a lunar year has passed on any wealth that grows.</div>');
+    } else {
+      lines.push(row("Rate applied", "2.5%"));
+    }
+    els.breakdown.innerHTML = lines.join("");
+    els.resultBox.classList.add("show");
+    els.resultBox.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function row(label, value){
+    var display = typeof value === "number"
+      ? value.toLocaleString(undefined, { maximumFractionDigits: 2 })
+      : value;
+    return "<div><span>" + label + "</span><span>" + display + "</span></div>";
+  }
+
+  // Theme follows whatever was last set in the main app
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+</script>
+</body>
+</html>
