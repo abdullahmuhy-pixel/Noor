@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Islamic Calendar — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink); padding-bottom:40px; }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 4px; }
+  .tagline{ font-size:0.8rem; opacity:0.7; margin:0; }
+  main{ max-width:560px; margin:0 auto; padding:20px; }
+
+  .today-card{
+    background:var(--ink); color:var(--parchment); border-radius:16px;
+    padding:22px; text-align:center; margin-bottom:20px;
+  }
+  .today-card .hijri{ font-family:'Amiri',serif; font-size:1.6rem; color:var(--gold-soft); }
+  .today-card .greg{ font-size:0.85rem; opacity:0.7; margin-top:4px; }
+
+  .month-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .month-nav button{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.3); color:var(--ink);
+    width:38px; height:38px; border-radius:10px; font-size:1.1rem; cursor:pointer;
+  }
+  .month-nav .month-title{ font-family:'Amiri',serif; font-size:1.15rem; }
+
+  .weekday-row{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
+  .weekday-row span{ text-align:center; font-size:0.68rem; opacity:0.55; text-transform:uppercase; }
+
+  .day-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .day-cell{
+    aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.15); border-radius:8px;
+    font-size:0.85rem;
+  }
+  .day-cell.empty{ background:none; border:none; }
+  .day-cell.today{ background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:700; }
+  .day-cell .greg-num{ font-size:0.6rem; opacity:0.55; margin-top:1px; }
+  .day-cell.today .greg-num{ opacity:0.75; }
+  .day-cell.occasion{ border-color:var(--gold); }
+  .day-cell .dot{ width:4px; height:4px; border-radius:50%; background:var(--gold); margin-top:2px; }
+
+  .occasions{ margin-top:20px; }
+  .occasion-row{
+    display:flex; justify-content:space-between; gap:10px;
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.2);
+    border-radius:12px; padding:12px 14px; margin-bottom:8px; font-size:0.85rem;
+  }
+  .occasion-row .name{ font-weight:600; }
+  .occasion-row .date{ opacity:0.65; flex:none; }
+
+  .note{ font-size:0.76rem; opacity:0.6; line-height:1.6; margin-top:20px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Home</a>
+  <h1>Islamic Calendar</h1>
+  <p class="tagline">Today's Hijri date, and the month ahead.</p>
+</header>
+
+<main>
+  <div class="today-card">
+    <div class="hijri" id="todayHijri">—</div>
+    <div class="greg" id="todayGreg">—</div>
+  </div>
+
+  <div class="month-nav">
+    <button id="prevBtn" aria-label="Previous month">&larr;</button>
+    <div class="month-title" id="monthTitle">—</div>
+    <button id="nextBtn" aria-label="Next month">&rarr;</button>
+  </div>
+
+  <div class="weekday-row">
+    <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+  </div>
+  <div class="day-grid" id="dayGrid"></div>
+
+  <div class="occasions">
+    <div class="occasion-row" id="nextOccasionRow" style="display:none;"></div>
+  </div>
+
+  <div class="note">
+    Dates shown use the Umm al-Qura civil calendar (the standard tabular calculation used across
+    much of the Muslim world) and may fall a day earlier or later than your local mosque's
+    determination, especially around Ramadan and the two Eids, since many communities confirm the
+    start of these months by local moon sighting rather than calculation alone. Always confirm
+    dates for fasting and Eid with your own local moon-sighting authority.
+  </div>
+</main>
+
+<script>
+  var HIJRI_CAL = "en-US-u-ca-islamic-umalqura";
+  var hijriFormatter, hijriMonthYearFormatter;
+  var calendarWorks = true;
+
+  try{
+    hijriFormatter = new Intl.DateTimeFormat(HIJRI_CAL, { day: "numeric", month: "long", year: "numeric" });
+    hijriMonthYearFormatter = new Intl.DateTimeFormat(HIJRI_CAL, { month: "long", year: "numeric" });
+    // sanity check it actually returns Islamic-looking output
+    hijriFormatter.format(new Date());
+  }catch(e){
+    calendarWorks = false;
+  }
+
+  var els = {
+    todayHijri: document.getElementById("todayHijri"),
+    todayGreg: document.getElementById("todayGreg"),
+    monthTitle: document.getElementById("monthTitle"),
+    dayGrid: document.getElementById("dayGrid"),
+    prevBtn: document.getElementById("prevBtn"),
+    nextBtn: document.getElementById("nextBtn"),
+    nextOccasionRow: document.getElementById("nextOccasionRow")
+  };
+
+  // Fixed Hijri month/day positions for widely observed occasions. Actual
+  // local observance (especially Ramadan and the two Eids) often depends
+  // on moon sighting and may shift by a day from this calculation.
+  var OCCASIONS = [
+    { month: 1, day: 1, name: "Islamic New Year" },
+    { month: 1, day: 10, name: "Day of Ashura" },
+    { month: 3, day: 12, name: "Mawlid an-Nabi (commonly observed)" },
+    { month: 7, day: 27, name: "Isra and Mi'raj (commonly observed)" },
+    { month: 8, day: 15, name: "Mid-Sha'ban (Laylat al-Bara'ah)" },
+    { month: 9, day: 1, name: "Start of Ramadan" },
+    { month: 10, day: 1, name: "Eid al-Fitr" },
+    { month: 12, day: 9, name: "Day of Arafah" },
+    { month: 12, day: 10, name: "Eid al-Adha" }
+  ];
+
+  function getHijriParts(date){
+    var parts = new Intl.DateTimeFormat(HIJRI_CAL, { day: "numeric", month: "numeric", year: "numeric" }).formatToParts(date);
+    var out = {};
+    parts.forEach(function(p){ out[p.type] = parseInt(p.value, 10); });
+    return out; // { day, month, year }
+  }
+
+  var viewDate = new Date(); // any Gregorian date within the currently viewed Hijri month
+
+  function findMonthStart(anchor){
+    // Walk backward from anchor until the Hijri day resets to 1
+    var d = new Date(anchor);
+    var parts = getHijriParts(d);
+    while(parts.day !== 1){
+      d.setDate(d.getDate() - 1);
+      parts = getHijriParts(d);
+    }
+    return d;
+  }
+
+  function render(){
+    if(!calendarWorks){
+      els.monthTitle.textContent = "Unavailable";
+      els.dayGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; opacity:0.6; padding:20px 0;">' +
+        "This browser doesn't support Islamic calendar conversion. Try a recent version of Chrome, " +
+        "Safari, or Edge.</div>";
+      return;
+    }
+
+    var today = new Date();
+    els.todayHijri.textContent = hijriFormatter.format(today) + " AH";
+    els.todayGreg.textContent = today.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
+    var monthStart = findMonthStart(viewDate);
+    var startParts = getHijriParts(monthStart);
+    els.monthTitle.textContent = hijriMonthYearFormatter.format(monthStart) + " AH";
+
+    // Find month length by walking forward until day resets to 1 again
+    var cursor = new Date(monthStart);
+    var days = [];
+    do{
+      days.push(new Date(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    } while(getHijriParts(cursor).day !== 1);
+
+    var leadingBlanks = monthStart.getDay(); // Sunday = 0
+    var cells = [];
+    for(var i = 0; i < leadingBlanks; i++) cells.push(null);
+    days.forEach(function(d){ cells.push(d); });
+
+    els.dayGrid.innerHTML = cells.map(function(d){
+      if(!d) return '<div class="day-cell empty"></div>';
+      var hp = getHijriParts(d);
+      var isToday = d.toDateString() === today.toDateString();
+      var occasion = OCCASIONS.find(function(o){ return o.month === hp.month && o.day === hp.day; });
+      return '<div class="day-cell' + (isToday ? ' today' : '') + (occasion ? ' occasion' : '') + '">' +
+        '<span>' + hp.day + '</span>' +
+        '<span class="greg-num">' + d.getDate() + '</span>' +
+        (occasion ? '<span class="dot"></span>' : '') +
+        '</div>';
+    }).join("");
+
+    // Find the next upcoming occasion from today onward (search up to ~13 months ahead)
+    var search = new Date(today);
+    var found = null;
+    for(var m = 0; m < 400 && !found; m++){
+      var hp2 = getHijriParts(search);
+      var match = OCCASIONS.find(function(o){ return o.month === hp2.month && o.day === hp2.day; });
+      if(match && search >= today){
+        found = { name: match.name, date: new Date(search) };
+      }
+      search.setDate(search.getDate() + 1);
+    }
+    if(found){
+      els.nextOccasionRow.style.display = "flex";
+      els.nextOccasionRow.innerHTML =
+        '<span class="name">Next: ' + found.name + '</span>' +
+        '<span class="date">' + found.date.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + '</span>';
+    }
+  }
+
+  els.prevBtn.addEventListener("click", function(){
+    var monthStart = findMonthStart(viewDate);
+    viewDate = new Date(monthStart);
+    viewDate.setDate(viewDate.getDate() - 5); // jump comfortably into previous month
+    render();
+  });
+  els.nextBtn.addEventListener("click", function(){
+    var monthStart = findMonthStart(viewDate);
+    var cursor = new Date(monthStart);
+    do{ cursor.setDate(cursor.getDate() + 1); } while(getHijriParts(cursor).day !== 1);
+    viewDate = cursor;
+    render();
+  });
+
+  render();
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+</script>
+</body>
+</html>

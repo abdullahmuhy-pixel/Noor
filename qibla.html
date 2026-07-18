@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Qibla Direction — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink); padding-bottom:40px; }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 4px; }
+  .tagline{ font-size:0.8rem; opacity:0.7; margin:0; }
+  main{ max-width:520px; margin:0 auto; padding:20px; text-align:center; }
+  .status{ font-size:0.85rem; opacity:0.65; margin:10px 0 20px; min-height:1.2em; }
+  .compass-wrap{
+    width:260px; height:260px; margin:0 auto 20px; position:relative;
+  }
+  .compass-ring{
+    width:100%; height:100%; border-radius:50%;
+    background:var(--parchment-dim); border:2px solid rgba(169,128,63,0.35);
+    position:relative;
+  }
+  .compass-ring .tick{
+    position:absolute; left:50%; top:6px; width:2px; height:12px;
+    background:rgba(169,128,63,0.4); transform-origin:1px 124px;
+  }
+  .compass-ring .card-label{
+    position:absolute; font-size:0.75rem; font-weight:700; color:var(--gold); opacity:0.8;
+  }
+  .n-label{ top:14px; left:50%; transform:translateX(-50%); }
+  .e-label{ top:50%; right:14px; transform:translateY(-50%); }
+  .s-label{ bottom:14px; left:50%; transform:translateX(-50%); }
+  .w-label{ top:50%; left:14px; transform:translateY(-50%); }
+  .needle{
+    position:absolute; left:50%; top:50%; width:4px; height:100px;
+    background:linear-gradient(180deg, var(--gold) 0%, var(--gold-soft) 100%);
+    transform-origin:2px 100%; transform:translate(-2px,-100%) rotate(0deg);
+    border-radius:4px; transition:transform 0.2s ease-out;
+  }
+  .needle::before{
+    content:"🕋"; position:absolute; top:-18px; left:50%; transform:translateX(-50%);
+    font-size:1.3rem;
+  }
+  .center-dot{
+    position:absolute; left:50%; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px;
+    background:var(--ink); border-radius:50%;
+  }
+  .reading{ font-family:'Amiri',serif; font-size:2.2rem; color:var(--gold); margin:10px 0 2px; }
+  .reading-label{ font-size:0.8rem; opacity:0.6; margin-bottom:20px; }
+  .info-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:14px; padding:16px; margin-bottom:16px; text-align:left; font-size:0.88rem;
+  }
+  .info-card div{ display:flex; justify-content:space-between; padding:5px 0; }
+  button.primary{
+    padding:14px 24px; border-radius:12px; border:none;
+    background:var(--gold); color:var(--ink); font-weight:700; font-size:0.95rem;
+    cursor:pointer; font-family:'Inter',sans-serif; margin-bottom:10px;
+  }
+  .note{ font-size:0.76rem; opacity:0.6; line-height:1.6; margin-top:16px; text-align:left; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Home</a>
+  <h1>Qibla Direction</h1>
+  <p class="tagline">Find the direction to the Ka'bah from wherever you are.</p>
+</header>
+
+<main>
+  <div class="status" id="status">Getting your location…</div>
+
+  <div class="compass-wrap" id="compassWrap" style="display:none;">
+    <div class="compass-ring" id="compassRing">
+      <span class="card-label n-label">N</span>
+      <span class="card-label e-label">E</span>
+      <span class="card-label s-label">S</span>
+      <span class="card-label w-label">W</span>
+      <div class="needle" id="needle"></div>
+      <div class="center-dot"></div>
+    </div>
+  </div>
+
+  <div class="reading" id="reading" style="display:none;">—</div>
+  <div class="reading-label" id="readingLabel"></div>
+
+  <button class="primary" id="enableCompassBtn" style="display:none;">Enable Live Compass</button>
+
+  <div class="info-card" id="infoCard" style="display:none;"></div>
+
+  <div class="note" id="note" style="display:none;">
+    <strong>Using this without live compass:</strong> the number above is your Qibla bearing measured
+    clockwise from true north. Use any compass app or your phone's built-in compass to find true
+    north, then turn until you're facing that many degrees clockwise from it.
+    <br><br>
+    <strong>If the live compass seems inaccurate:</strong> move your phone in a slow figure-8 motion
+    a few times to recalibrate its magnetometer — this is a common fix and not specific to this app.
+    Metal objects, magnets, and some phone cases can also throw off the reading.
+  </div>
+</main>
+
+<script>
+  var KAABA_LAT = 21.4225;
+  var KAABA_LNG = 39.8262;
+
+  var els = {
+    status: document.getElementById("status"),
+    compassWrap: document.getElementById("compassWrap"),
+    needle: document.getElementById("needle"),
+    reading: document.getElementById("reading"),
+    readingLabel: document.getElementById("readingLabel"),
+    enableCompassBtn: document.getElementById("enableCompassBtn"),
+    infoCard: document.getElementById("infoCard"),
+    note: document.getElementById("note")
+  };
+
+  var qiblaBearing = null;
+  var currentHeading = 0;
+  var compassActive = false;
+
+  function toRad(d){ return d * Math.PI / 180; }
+  function toDeg(r){ return r * 180 / Math.PI; }
+
+  function calcQiblaBearing(lat, lng){
+    var phi1 = toRad(lat), phi2 = toRad(KAABA_LAT);
+    var deltaLambda = toRad(KAABA_LNG - lng);
+    var y = Math.sin(deltaLambda) * Math.cos(phi2);
+    var x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
+    var theta = toDeg(Math.atan2(y, x));
+    return (theta + 360) % 360;
+  }
+
+  function calcDistanceKm(lat, lng){
+    var R = 6371;
+    var phi1 = toRad(lat), phi2 = toRad(KAABA_LAT);
+    var dPhi = toRad(KAABA_LAT - lat), dLambda = toRad(KAABA_LNG - lng);
+    var a = Math.sin(dPhi/2)*Math.sin(dPhi/2) + Math.cos(phi1)*Math.cos(phi2)*Math.sin(dLambda/2)*Math.sin(dLambda/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function updateNeedle(){
+    if(qiblaBearing === null) return;
+    var rotation = compassActive ? (qiblaBearing - currentHeading + 360) % 360 : qiblaBearing;
+    els.needle.style.transform = "translate(-2px,-100%) rotate(" + rotation + "deg)";
+  }
+
+  function compassDirectionLabel(deg){
+    var dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+    return dirs[Math.round(deg / 22.5) % 16];
+  }
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat = pos.coords.latitude, lng = pos.coords.longitude;
+    qiblaBearing = calcQiblaBearing(lat, lng);
+    var distance = calcDistanceKm(lat, lng);
+
+    els.status.textContent = "";
+    els.compassWrap.style.display = "block";
+    els.reading.style.display = "block";
+    els.reading.textContent = Math.round(qiblaBearing) + "°";
+    els.readingLabel.textContent = compassDirectionLabel(qiblaBearing) + " of true north";
+    els.enableCompassBtn.style.display = "inline-block";
+    els.infoCard.style.display = "block";
+    els.infoCard.innerHTML =
+      "<div><span>Your location</span><span>" + lat.toFixed(3) + ", " + lng.toFixed(3) + "</span></div>" +
+      "<div><span>Distance to Makkah</span><span>" + Math.round(distance).toLocaleString() + " km</span></div>";
+    els.note.style.display = "block";
+
+    updateNeedle();
+  }, function(err){
+    els.status.textContent = "Couldn't get your location (" + err.message + "). " +
+      "Location access is needed to calculate your Qibla direction — check your browser's location permission for this site and try again.";
+  }, { enableHighAccuracy: true });
+
+  function startCompass(){
+    function handleOrientation(e){
+      var heading;
+      if(typeof e.webkitCompassHeading === "number"){
+        heading = e.webkitCompassHeading; // iOS Safari: already true-north heading
+      } else if(e.alpha !== null){
+        heading = 360 - e.alpha; // approximate; absolute orientation varies by device
+      } else {
+        return;
+      }
+      currentHeading = heading;
+      compassActive = true;
+      updateNeedle();
+    }
+
+    if(typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function"){
+      DeviceOrientationEvent.requestPermission().then(function(result){
+        if(result === "granted"){
+          window.addEventListener("deviceorientation", handleOrientation, true);
+          els.enableCompassBtn.style.display = "none";
+        } else {
+          els.status.textContent = "Compass permission wasn't granted — you can still use the static bearing above with any compass app.";
+        }
+      }).catch(function(){
+        els.status.textContent = "Couldn't access the compass on this device — use the static bearing above with any compass app instead.";
+      });
+    } else if("ondeviceorientationabsolute" in window){
+      window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+      els.enableCompassBtn.style.display = "none";
+    } else if("ondeviceorientation" in window){
+      window.addEventListener("deviceorientation", handleOrientation, true);
+      els.enableCompassBtn.style.display = "none";
+    } else {
+      els.status.textContent = "This device or browser doesn't expose compass data — use the static bearing above with any compass app instead.";
+    }
+  }
+
+  els.enableCompassBtn.addEventListener("click", startCompass);
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+</script>
+</body>
+</html>

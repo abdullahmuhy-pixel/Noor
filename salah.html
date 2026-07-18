@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Salah Times — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink); padding-bottom:40px; }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 4px; }
+  .tagline{ font-size:0.8rem; opacity:0.7; margin:0; }
+  main{ max-width:560px; margin:0 auto; padding:20px; }
+  #status{ text-align:center; opacity:0.6; padding:30px 0; }
+
+  .next-card{
+    background:var(--ink); color:var(--parchment); border-radius:16px;
+    padding:22px; text-align:center; margin-bottom:18px; display:none;
+  }
+  .next-card .label{ font-size:0.78rem; opacity:0.7; text-transform:uppercase; letter-spacing:0.5px; }
+  .next-card .name{ font-family:'Amiri',serif; font-size:1.8rem; color:var(--gold-soft); margin:6px 0 2px; }
+  .next-card .time{ font-size:1rem; opacity:0.85; }
+  .next-card .countdown{ font-size:0.85rem; opacity:0.6; margin-top:8px; }
+
+  .prayer-list{ display:none; }
+  .prayer-row{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.2);
+    border-radius:12px; padding:13px 16px; margin-bottom:8px;
+  }
+  .prayer-row.active{ border-color:var(--gold); background:rgba(169,128,63,0.12); }
+  .prayer-row .pname{ font-family:'Amiri',serif; font-size:1.05rem; }
+  .prayer-row .ptime{ font-size:0.95rem; font-weight:600; }
+
+  .settings-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:14px; padding:16px; margin-top:20px; display:none;
+  }
+  .settings-card label{ display:block; font-size:0.82rem; margin-bottom:6px; opacity:0.8; }
+  .settings-card select{
+    width:100%; padding:10px 12px; border-radius:10px; margin-bottom:14px;
+    border:1px solid rgba(169,128,63,0.35); background:var(--parchment); color:var(--ink);
+    font-family:'Inter',sans-serif; font-size:0.9rem;
+  }
+  button.primary{
+    width:100%; padding:13px; border-radius:12px; border:none;
+    background:var(--gold); color:var(--ink); font-weight:700; font-size:0.92rem;
+    cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .reminder-status{ font-size:0.78rem; opacity:0.65; margin-top:10px; text-align:center; }
+  .note{ font-size:0.76rem; opacity:0.6; line-height:1.6; margin-top:16px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Home</a>
+  <h1>Salah Times</h1>
+  <p class="tagline">Today's prayer times for your location, with optional reminders.</p>
+</header>
+
+<main>
+  <div id="status">Getting your location…</div>
+
+  <div class="next-card" id="nextCard">
+    <div class="label">Next prayer</div>
+    <div class="name" id="nextName">—</div>
+    <div class="time" id="nextTime">—</div>
+    <div class="countdown" id="nextCountdown">—</div>
+  </div>
+
+  <div class="prayer-list" id="prayerList"></div>
+
+  <div class="settings-card" id="settingsCard">
+    <label for="methodSelect">Calculation method</label>
+    <select id="methodSelect">
+      <option value="2">Islamic Society of North America (ISNA)</option>
+      <option value="3">Muslim World League</option>
+      <option value="4">Umm al-Qura, Makkah</option>
+      <option value="5">Egyptian General Authority</option>
+      <option value="1">University of Islamic Sciences, Karachi</option>
+    </select>
+    <button class="primary" id="enableReminderBtn">Enable Reminders for Today</button>
+    <div class="reminder-status" id="reminderStatus"></div>
+    <div class="note">
+      Reminders use your browser's notification system and are scheduled for the rest of today
+      while this app stays open in the background — they won't fire if the browser or app is
+      fully closed, since that needs a server pushing notifications, which this app doesn't have.
+      For guaranteed alerts, consider also setting alarms in your phone's own clock app.
+    </div>
+  </div>
+</main>
+
+<script>
+  var els = {
+    status: document.getElementById("status"),
+    nextCard: document.getElementById("nextCard"),
+    nextName: document.getElementById("nextName"),
+    nextTime: document.getElementById("nextTime"),
+    nextCountdown: document.getElementById("nextCountdown"),
+    prayerList: document.getElementById("prayerList"),
+    settingsCard: document.getElementById("settingsCard"),
+    methodSelect: document.getElementById("methodSelect"),
+    enableReminderBtn: document.getElementById("enableReminderBtn"),
+    reminderStatus: document.getElementById("reminderStatus")
+  };
+
+  var PRAYER_NAMES = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+  var state = { timings: null, lat: null, lng: null };
+  var reminderTimers = [];
+
+  function pad(n){ return n < 10 ? "0" + n : "" + n; }
+  function todayStr(){
+    var d = new Date();
+    return pad(d.getDate()) + "-" + pad(d.getMonth() + 1) + "-" + d.getFullYear();
+  }
+
+  function parseTimeToday(hhmm){
+    var parts = hhmm.split(":");
+    var d = new Date();
+    d.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+    return d;
+  }
+
+  function formatTime12(hhmm){
+    var parts = hhmm.split(":");
+    var h = parseInt(parts[0], 10), m = parts[1];
+    var ampm = h >= 12 ? "PM" : "AM";
+    var h12 = h % 12; if(h12 === 0) h12 = 12;
+    return h12 + ":" + m + " " + ampm;
+  }
+
+  function fetchTimings(method){
+    if(state.lat === null) return;
+    els.status.textContent = "Loading prayer times…";
+    var url = "https://api.aladhan.com/v1/timings/" + todayStr() +
+      "?latitude=" + state.lat + "&longitude=" + state.lng + "&method=" + method;
+    fetch(url).then(function(res){
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }).then(function(json){
+      if(json.code !== 200) throw new Error("Unexpected response");
+      state.timings = json.data.timings;
+      els.status.textContent = "";
+      els.nextCard.style.display = "block";
+      els.prayerList.style.display = "block";
+      els.settingsCard.style.display = "block";
+      renderPrayers();
+    }).catch(function(err){
+      els.status.textContent = "Couldn't load prayer times (" + err.message + "). Check your connection and try again.";
+    });
+  }
+
+  function renderPrayers(){
+    if(!state.timings) return;
+    var now = new Date();
+    var rows = PRAYER_NAMES.map(function(name){
+      return { name: name, time: state.timings[name], date: parseTimeToday(state.timings[name]) };
+    });
+
+    var next = rows.find(function(r){ return r.date > now; });
+    if(!next) next = rows[0]; // after Isha, next is tomorrow's Fajr (shown as today's for simplicity)
+
+    els.prayerList.innerHTML = rows.map(function(r){
+      var isNext = next && r.name === next.name && r.date > now;
+      return '<div class="prayer-row' + (isNext ? ' active' : '') + '">' +
+        '<span class="pname">' + r.name + '</span>' +
+        '<span class="ptime">' + formatTime12(r.time) + '</span>' +
+        '</div>';
+    }).join("");
+
+    if(next && next.date > now){
+      els.nextName.textContent = next.name;
+      els.nextTime.textContent = formatTime12(next.time);
+      updateCountdown(next.date);
+    } else {
+      els.nextName.textContent = "Fajr (tomorrow)";
+      els.nextTime.textContent = formatTime12(rows[0].time);
+      els.nextCountdown.textContent = "";
+    }
+  }
+
+  function updateCountdown(target){
+    function tick(){
+      var diff = target - new Date();
+      if(diff <= 0){ renderPrayers(); return; }
+      var h = Math.floor(diff / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      els.nextCountdown.textContent = "in " + h + "h " + m + "m";
+    }
+    tick();
+    clearInterval(window._salahCountdownInterval);
+    window._salahCountdownInterval = setInterval(tick, 30000);
+  }
+
+  els.methodSelect.addEventListener("change", function(){
+    fetchTimings(els.methodSelect.value);
+  });
+
+  els.enableReminderBtn.addEventListener("click", function(){
+    if(!("Notification" in window)){
+      els.reminderStatus.textContent = "This browser doesn't support notifications.";
+      return;
+    }
+    Notification.requestPermission().then(function(perm){
+      if(perm !== "granted"){
+        els.reminderStatus.textContent = "Notification permission wasn't granted.";
+        return;
+      }
+      reminderTimers.forEach(clearTimeout);
+      reminderTimers = [];
+      var now = new Date();
+      var scheduled = 0;
+      PRAYER_NAMES.filter(function(n){ return n !== "Sunrise"; }).forEach(function(name){
+        var t = parseTimeToday(state.timings[name]);
+        var delay = t - now;
+        if(delay > 0){
+          scheduled++;
+          reminderTimers.push(setTimeout(function(){
+            new Notification("Time for " + name, { body: "It's time for " + name + " prayer.", icon: "icon-192.png" });
+          }, delay));
+        }
+      });
+      els.reminderStatus.textContent = scheduled > 0
+        ? "Reminders set for " + scheduled + " remaining prayer(s) today, as long as this stays open."
+        : "No remaining prayers today to remind you about — check back tomorrow.";
+    });
+  });
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+    state.lat = pos.coords.latitude;
+    state.lng = pos.coords.longitude;
+    fetchTimings(els.methodSelect.value);
+  }, function(err){
+    els.status.textContent = "Couldn't get your location (" + err.message + "). " +
+      "Location access is needed to calculate accurate prayer times for where you are.";
+  }, { enableHighAccuracy: true });
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+</script>
+</body>
+</html>
