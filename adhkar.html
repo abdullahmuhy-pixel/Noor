@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Adhkar — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink); padding-bottom:40px; }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 4px; }
+  .tagline{ font-size:0.8rem; opacity:0.7; margin:0; }
+  main{ max-width:680px; margin:0 auto; padding:20px; }
+
+  .cat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:22px; }
+  .cat-btn{
+    display:flex; flex-direction:column; align-items:flex-start; gap:4px;
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:12px; padding:12px 14px; cursor:pointer; text-align:left;
+    font-family:'Inter',sans-serif; color:var(--ink);
+  }
+  .cat-btn.active{ border-color:var(--gold); background:rgba(169,128,63,0.15); }
+  .cat-btn .icon{ font-size:1.3rem; }
+  .cat-btn .label{ font-size:0.85rem; font-weight:600; line-height:1.25; }
+
+  .cat-title{ font-family:'Amiri',serif; font-size:1.3rem; color:var(--gold); margin:0 0 4px; }
+  .cat-desc{ font-size:0.82rem; opacity:0.65; margin-bottom:18px; }
+
+  .dua-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.2);
+    border-radius:14px; padding:18px; margin-bottom:14px;
+  }
+  .dua-title{ font-size:0.78rem; text-transform:uppercase; letter-spacing:0.4px; color:var(--gold); font-weight:700; margin-bottom:10px; }
+  .dua-arabic{
+    font-family:'Amiri',serif; font-size:1.35rem; line-height:2.1; direction:rtl; text-align:right;
+    margin-bottom:12px;
+  }
+  .dua-translit{ font-size:0.85rem; font-style:italic; opacity:0.7; margin-bottom:8px; line-height:1.6; }
+  .dua-translation{ font-size:0.95rem; line-height:1.6; margin-bottom:10px; }
+  .dua-meta{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+  .dua-ref{ font-size:0.72rem; opacity:0.55; }
+  .narrate-btn{
+    background:none; border:1px solid rgba(169,128,63,0.4); color:var(--gold);
+    padding:6px 13px; border-radius:20px; font-size:0.76rem; cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Home</a>
+  <h1>Adhkar</h1>
+  <p class="tagline">Remembrances and supplications, organized by moment, feeling, and occasion.</p>
+</header>
+
+<main>
+  <div class="cat-grid" id="catGrid"></div>
+  <div class="cat-title" id="catTitle"></div>
+  <div class="cat-desc" id="catDesc"></div>
+  <div id="duaList"></div>
+</main>
+
+<script>
+  // Each category groups authentic adhkar and du'as around a shared moment,
+  // emotion, or occasion. This starts with the categories people reach for
+  // most often and is meant to keep growing — the same way the rest of
+  // Noor's content library has been built out over time.
+  var CATEGORIES = [
+    {
+      icon: "🌅", label: "Morning & Evening",
+      desc: "The core daily remembrances said each morning and evening.",
+      duas: [
+        {
+          title: "Upon waking",
+          arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
+          translit: "Alhamdu lillahil-ladhi ahyana ba'da ma amatana wa ilayhin-nushur",
+          translation: "All praise is for Allah who gave us life after having taken it from us, and to Him is the resurrection.",
+          ref: "Sahih al-Bukhari"
+        },
+        {
+          title: "Morning remembrance (said once at the start of the day)",
+          arabic: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+          translit: "Asbahna wa asbahal-mulku lillah, walhamdu lillah, la ilaha illallahu wahdahu la sharika lah",
+          translation: "We have entered the morning, and with it all dominion belongs to Allah, and all praise is for Allah. There is no god but Allah alone, without any partner.",
+          ref: "Sahih Muslim — evening version replaces 'asbahna/asbaha' with 'amsayna/amsa'"
+        },
+        {
+          title: "Sayyid al-Istighfar (the master supplication for forgiveness)",
+          arabic: "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ",
+          translit: "Allahumma anta Rabbi la ilaha illa Ant, khalaqtani wa ana 'abduk, wa ana 'ala 'ahdika wa wa'dika mastata't",
+          translation: "O Allah, You are my Lord, there is no god but You. You created me and I am Your servant, and I hold to Your covenant and promise as best I can.",
+          ref: "Sahih al-Bukhari — said morning and evening; a hadith describes whoever says it with certainty and dies that day or night as entering Paradise"
+        },
+        {
+          title: "Before sleeping",
+          arabic: "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
+          translit: "Bismika Allahumma amutu wa ahya",
+          translation: "In Your name, O Allah, I die and I live.",
+          ref: "Sahih al-Bukhari"
+        }
+      ]
+    },
+    {
+      icon: "🏠", label: "Home & Daily Activities",
+      desc: "Leaving and entering the home, eating, and other everyday moments.",
+      duas: [
+        {
+          title: "Leaving the house",
+          arabic: "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+          translit: "Bismillahi tawakkaltu 'alallahi wa la hawla wa la quwwata illa billah",
+          translation: "In the name of Allah, I place my trust in Allah, and there is no power or strength except through Allah.",
+          ref: "Sunan Abi Dawud, Sunan at-Tirmidhi"
+        },
+        {
+          title: "Entering the house",
+          arabic: "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا",
+          translit: "Bismillahi walajna, wa bismillahi kharajna, wa 'ala Rabbina tawakkalna",
+          translation: "In the name of Allah we enter, and in the name of Allah we leave, and upon our Lord we place our trust.",
+          ref: "Sunan Abi Dawud"
+        },
+        {
+          title: "Before eating",
+          arabic: "بِسْمِ اللَّهِ",
+          translit: "Bismillah",
+          translation: "In the name of Allah.",
+          ref: "Sahih al-Bukhari, Sahih Muslim"
+        },
+        {
+          title: "If you forget to say Bismillah before starting to eat",
+          arabic: "بِسْمِ اللَّهِ أَوَّلَهُ وَآخِرَهُ",
+          translit: "Bismillahi awwalahu wa akhirah",
+          translation: "In the name of Allah, at its beginning and its end.",
+          ref: "Sunan Abi Dawud, Sunan at-Tirmidhi"
+        },
+        {
+          title: "After finishing a meal",
+          arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ",
+          translit: "Alhamdu lillahil-ladhi at'amani hadha wa razaqanihi min ghayri hawlin minni wa la quwwah",
+          translation: "All praise is for Allah who fed me this and provided it for me without any power or strength on my part.",
+          ref: "Sunan Abi Dawud, Sunan at-Tirmidhi"
+        },
+        {
+          title: "Entering the bathroom",
+          arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ",
+          translit: "Allahumma inni a'udhu bika minal-khubthi wal-khaba'ith",
+          translation: "O Allah, I seek refuge in You from male and female devils.",
+          ref: "Sahih al-Bukhari, Sahih Muslim"
+        },
+        {
+          title: "Leaving the bathroom",
+          arabic: "غُفْرَانَكَ",
+          translit: "Ghufranak",
+          translation: "I seek Your forgiveness.",
+          ref: "Sunan Abi Dawud, Sunan at-Tirmidhi"
+        }
+      ]
+    },
+    {
+      icon: "😔", label: "Anxiety, Worry & Sadness",
+      desc: "For moments of real emotional weight — worry, grief, and heaviness of heart.",
+      duas: [
+        {
+          title: "For anxiety and grief",
+          arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ",
+          translit: "Allahumma inni a'udhu bika minal-hammi wal-hazan, wal-'ajzi wal-kasal, wal-bukhli wal-jubn, wa dala'id-dayni wa ghalabatir-rijal",
+          translation: "O Allah, I seek refuge in You from anxiety and grief, from helplessness and laziness, from cowardice and miserliness, from being overwhelmed by debt and from being overpowered by other people.",
+          ref: "Sahih al-Bukhari"
+        },
+        {
+          title: "The supplication of Yunus, said in real distress",
+          arabic: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+          translit: "La ilaha illa Anta subhanaka inni kuntu minaz-zalimin",
+          translation: "There is no god but You, glory be to You — truly, I have been among the wrongdoers.",
+          ref: "Surah Al-Anbiya 21:87 — a hadith notes that no believer supplicates with these words in any matter without Allah answering him"
+        },
+        {
+          title: "When something feels like too much to carry alone",
+          arabic: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ",
+          translit: "Hasbunallahu wa ni'mal-wakil",
+          translation: "Allah is sufficient for us, and He is the best disposer of affairs.",
+          ref: "Surah Aal-e-Imran 3:173"
+        },
+        {
+          title: "For relief from distress",
+          arabic: "اللَّهُمَّ رَحْمَتَكَ أَرْجُو فَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ، وَأَصْلِحْ لِي شَأْنِي كُلَّهُ، لَا إِلَهَ إِلَّا أَنْتَ",
+          translit: "Allahumma rahmataka arju fala takilni ila nafsi tarfata 'ayn, wa aslih li sha'ni kullah, la ilaha illa Ant",
+          translation: "O Allah, it is Your mercy I hope for, so do not leave me to myself even for the blink of an eye, and set right all of my affairs — there is no god but You.",
+          ref: "Sunan Abi Dawud, Musnad Ahmad"
+        }
+      ]
+    },
+    {
+      icon: "😨", label: "Fear & Protection",
+      desc: "Seeking Allah's protection from harm, evil, and fear of any kind.",
+      duas: [
+        {
+          title: "Seeking refuge from the evil of creation",
+          arabic: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+          translit: "A'udhu bikalimatillahit-tammati min sharri ma khalaq",
+          translation: "I seek refuge in the perfect words of Allah from the evil of what He has created.",
+          ref: "Sahih Muslim"
+        },
+        {
+          title: "When fearful of a person or a group",
+          arabic: "اللَّهُمَّ إِنَّا نَجْعَلُكَ فِي نُحُورِهِمْ، وَنَعُوذُ بِكَ مِنْ شُرُورِهِمْ",
+          translit: "Allahumma inna naj'aluka fi nuhurihim, wa na'udhu bika min shururihim",
+          translation: "O Allah, we place You before them, and we seek refuge in You from their evil.",
+          ref: "Sunan Abi Dawud"
+        },
+        {
+          title: "A comprehensive protection said morning and evening",
+          arabic: "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+          translit: "Bismillahil-ladhi la yadurru ma'as-mihi shay'un fil-ardi wa la fis-sama'i wa Huwas-Sami'ul-'Alim",
+          translation: "In the name of Allah, with whose name nothing on earth or in the heavens can cause harm, and He is the All-Hearing, the All-Knowing.",
+          ref: "Sunan Abi Dawud, Sunan at-Tirmidhi — said three times, morning and evening"
+        }
+      ]
+    },
+    {
+      icon: "😠", label: "Anger",
+      desc: "For the moment anger rises, before it becomes words or actions.",
+      duas: [
+        {
+          title: "Seeking refuge from Shaytan when angry",
+          arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+          translit: "A'udhu billahi minash-shaytanir-rajim",
+          translation: "I seek refuge in Allah from the accursed devil.",
+          ref: "Sahih al-Bukhari, Sahih Muslim — Muhammad taught this after seeing two men arguing, saying he knew a phrase that would remove what one of them was feeling if he said it"
+        },
+        {
+          title: "The Prophet's guidance for anger, alongside the words above",
+          arabic: "—",
+          translit: "—",
+          translation: "If you're standing when anger comes, sit down; if sitting, lie down. If it doesn't leave, make wudu (or, by some narrations, wash with water) — the Prophet described anger as coming from Shaytan, and Shaytan as created from fire, extinguished by water.",
+          ref: "Sunan Abi Dawud"
+        }
+      ]
+    },
+    {
+      icon: "🤒", label: "Illness & Visiting the Sick",
+      desc: "Du'as for your own illness, and what to say when visiting someone unwell.",
+      duas: [
+        {
+          title: "For pain in a specific part of the body",
+          arabic: "بِسْمِ اللَّهِ (تُقال ثلاثاً) ، أَعُوذُ بِاللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ (تُقال سبعاً)",
+          translit: "Bismillah (said 3 times), a'udhu billahi wa qudratihi min sharri ma ajidu wa uhadhir (said 7 times)",
+          translation: "In the name of Allah (three times). I seek refuge in Allah and His power from the evil of what I feel and what I am wary of (seven times) — said while placing your hand on the painful area.",
+          ref: "Sahih Muslim"
+        },
+        {
+          title: "Supplicating for someone who is sick",
+          arabic: "أَسْأَلُ اللَّهَ الْعَظِيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفِيَكَ",
+          translit: "As'alullahal-'Azima Rabbal-'Arshil-'Azimi an yashfiyak",
+          translation: "I ask Allah the Mighty, Lord of the Mighty Throne, to cure you.",
+          ref: "Sunan Abi Dawud, Sunan at-Tirmidhi — said seven times over someone visited before their appointed time of death"
+        },
+        {
+          title: "Ruqyah said over the sick",
+          arabic: "أَذْهِبِ الْبَاسَ رَبَّ النَّاسِ، اشْفِ أَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ، شِفَاءً لَا يُغَادِرُ سَقَمًا",
+          translit: "Adhhibil-ba's Rabban-nas, ishfi Antash-Shafi, la shifa'a illa shifa'uk, shifa'an la yughadiru saqama",
+          translation: "Remove the harm, Lord of mankind, and heal — You are the Healer, there is no healing but Your healing, a healing that leaves behind no illness.",
+          ref: "Sahih al-Bukhari, Sahih Muslim"
+        }
+      ]
+    },
+    {
+      icon: "🕊️", label: "Death & Calamity",
+      desc: "For loss, grief, and hearing difficult news.",
+      duas: [
+        {
+          title: "Upon hearing of a death or facing any calamity",
+          arabic: "إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ، اللَّهُمَّ أْجُرْنِي فِي مُصِيبَتِي وَأَخْلِفْ لِي خَيْرًا مِنْهَا",
+          translit: "Inna lillahi wa inna ilayhi raji'un. Allahumma-jurni fi musibati wa akhlif li khayran minha",
+          translation: "Truly, we belong to Allah, and truly to Him we shall return. O Allah, reward me in my affliction and replace it for me with something better.",
+          ref: "Sahih Muslim — from Surah Al-Baqarah 2:156, with the addition Umm Salamah was taught upon Abu Salamah's death"
+        },
+        {
+          title: "Offering condolences to someone grieving",
+          arabic: "إِنَّ لِلَّهِ مَا أَخَذَ، وَلَهُ مَا أَعْطَى، وَكُلُّ شَيْءٍ عِنْدَهُ بِأَجَلٍ مُسَمًّى، فَلْتَصْبِرْ وَلْتَحْتَسِبْ",
+          translit: "Inna lillahi ma akhadh, wa lahu ma a'ta, wa kullu shay'in 'indahu bi-ajalin musamma, faltasbir wal-tahtasib",
+          translation: "To Allah belongs what He has taken, and to Him belongs what He has given, and everything with Him has an appointed term — so let her (or him) be patient and seek reward from Allah.",
+          ref: "Sahih al-Bukhari, Sahih Muslim — the Prophet's own message of condolence, sent to his daughter upon her child's death"
+        }
+      ]
+    },
+    {
+      icon: "💍", label: "Marriage & New Family",
+      desc: "For weddings, newlyweds, and welcoming a new child.",
+      duas: [
+        {
+          title: "Congratulating a newly married couple",
+          arabic: "بَارَكَ اللَّهُ لَكَ، وَبَارَكَ عَلَيْكَ، وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
+          translit: "Barakallahu laka, wa baraka 'alayka, wa jama'a baynakuma fi khayr",
+          translation: "May Allah bless you, and shower blessings upon you, and join the two of you together in goodness.",
+          ref: "Sunan Abi Dawud, Sunan at-Tirmidhi"
+        },
+        {
+          title: "For the husband, on the wedding night",
+          arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا وَخَيْرَ مَا جَبَلْتَهَا عَلَيْهِ، وَأَعُوذُ بِكَ مِنْ شَرِّهَا وَشَرِّ مَا جَبَلْتَهَا عَلَيْهِ",
+          translit: "Allahumma inni as'aluka khayraha wa khayra ma jabaltaha 'alayh, wa a'udhu bika min sharriha wa sharri ma jabaltaha 'alayh",
+          translation: "O Allah, I ask You for the good in her and the good You have shaped her upon, and I seek refuge in You from any harm in her and any harm You have shaped her upon.",
+          ref: "Sunan Abi Dawud"
+        },
+        {
+          title: "Seeking protection for a newborn",
+          arabic: "أُعِيذُكُمَا بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ، وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ",
+          translit: "U'idhukuma bikalimatillahit-tammati min kulli shaytanin wa hammah, wa min kulli 'aynin lammah",
+          translation: "I seek protection for the two of you in the perfect words of Allah, from every devil and poisonous creature, and from every harmful, envious eye.",
+          ref: "Sahih al-Bukhari — the words Ibrahim is reported to have used for Isma'il and Ishaq, later used by Muhammad for Hasan and Husayn"
+        },
+        {
+          title: "Congratulating new parents",
+          arabic: "بَارَكَ اللَّهُ لَكَ فِي الْمَوْهُوبِ لَكَ، وَشَكَرْتَ الْوَاهِبَ، وَبَلَغَ أَشُدَّهُ، وَرُزِقْتَ بِرَّهُ",
+          translit: "Barakallahu laka fil-mawhubi lak, wa shakartal-wahib, wa balagha ashuddah, wa ruziqta birrah",
+          translation: "May Allah bless the child given to you, may you give thanks to the One who gave, may the child reach full maturity, and may you be granted their righteousness.",
+          ref: "A well-known reply attributed to Al-Hasan al-Basri when congratulated on the birth of his own son"
+        }
+      ]
+    },
+    {
+      icon: "✈️", label: "Travel",
+      desc: "For setting out on a journey, and returning safely.",
+      duas: [
+        {
+          title: "Setting out on a journey",
+          arabic: "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ",
+          translit: "Allahu Akbar, Allahu Akbar, Allahu Akbar. Subhanal-ladhi sakhkhara lana hadha wa ma kunna lahu muqrinin, wa inna ila Rabbina lamunqalibun",
+          translation: "Allah is greatest, Allah is greatest, Allah is greatest. Glory to the One who has placed this transport at our service, for we could never have done so ourselves, and to our Lord we will surely return.",
+          ref: "Sahih Muslim — from Surah Az-Zukhruf 43:13-14"
+        },
+        {
+          title: "Entering a town or city",
+          arabic: "اللَّهُمَّ رَبَّ السَّمَاوَاتِ السَّبْعِ وَمَا أَظْلَلْنَ، وَرَبَّ الْأَرَضِينَ السَّبْعِ وَمَا أَقْلَلْنَ، أَسْأَلُكَ خَيْرَ هَذِهِ الْقَرْيَةِ وَخَيْرَ أَهْلِهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا وَشَرِّ أَهْلِهَا",
+          translit: "Allahumma Rabbas-samawatis-sab'i wa ma azlalna, wa Rabbal-aradinas-sab'i wa ma aqlalna, as'aluka khayra hadhihil-qaryati wa khayra ahliha, wa a'udhu bika min sharriha wa sharri ahliha",
+          translation: "O Allah, Lord of the seven heavens and all they shade, and Lord of the seven earths and all they carry, I ask You for the good of this town and the good of its people, and I seek refuge in You from its evil and the evil of its people.",
+          ref: "Sunan Abi Dawud (abridged here for length)"
+        },
+        {
+          title: "Returning from a journey",
+          arabic: "آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ",
+          translit: "Ayibuna ta'ibuna 'abiduna li-Rabbina hamidun",
+          translation: "We return, repentant, worshipping, and praising our Lord.",
+          ref: "Sahih al-Bukhari, Sahih Muslim — said by the Prophet on returning from a journey"
+        }
+      ]
+    },
+    {
+      icon: "🤔", label: "Seeking Guidance (Istikharah)",
+      desc: "For when a decision genuinely needs to be made, and you want Allah's guidance in it.",
+      duas: [
+        {
+          title: "Istikharah — after praying two voluntary rak'ahs",
+          arabic: "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ، وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ، وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ، فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ، وَتَعْلَمُ وَلَا أَعْلَمُ، وَأَنْتَ عَلَّامُ الْغُيُوبِ. اللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي، فَاقْدُرْهُ لِي وَيَسِّرْهُ لِي، ثُمَّ بَارِكْ لِي فِيهِ. وَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي، فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ، وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ، ثُمَّ أَرْضِنِي بِهِ",
+          translit: "Allahumma inni astakhiruka bi-'ilmika, wa astaqdiruka bi-qudratika, wa as'aluka min fadlikal-'azim, fa innaka taqdiru wa la aqdir, wa ta'lamu wa la a'lam, wa Anta 'Allamul-ghuyub. Allahumma in kunta ta'lamu anna hadhal-amra khayrun li fi dini wa ma'ashi wa 'aqibati amri, faqdurhu li wa yassirhu li, thumma barik li fih. Wa in kunta ta'lamu anna hadhal-amra sharrun li, fasrifhu 'anni wasrifni 'anhu, waqdur liyal-khayra haythu kan, thumma ardini bih",
+          translation: "O Allah, I seek Your guidance through Your knowledge, and I seek ability through Your power, and I ask You from Your immense grace, for You are able and I am not, You know and I do not, and You are the Knower of the unseen. O Allah, if You know this matter to be good for me in my religion, my livelihood, and the outcome of my affairs, then decree it for me, make it easy for me, and bless it for me. And if You know this matter to be bad for me, then turn it away from me and turn me away from it, and decree for me the good wherever it is, and make me content with it.",
+          ref: "Sahih al-Bukhari — said after naming the specific matter you're deciding on in place of 'this matter'"
+        }
+      ]
+    },
+    {
+      icon: "💰", label: "Hardship & Debt",
+      desc: "For financial strain, and the weight of what's owed.",
+      duas: [
+        {
+          title: "For being overwhelmed by debt",
+          arabic: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ",
+          translit: "Allahumma-kfini bihalalika 'an haramik, wa aghnini bifadlika 'amman siwak",
+          translation: "O Allah, suffice me with what You have made lawful, away from what You have made unlawful, and enrich me by Your grace, so that I need no one but You.",
+          ref: "Sunan at-Tirmidhi"
+        },
+        {
+          title: "For ease in a difficult matter",
+          arabic: "اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا",
+          translit: "Allahumma la sahla illa ma ja'altahu sahla, wa Anta taj'alul-hazna idha shi'ta sahla",
+          translation: "O Allah, there is no ease except in what You have made easy, and You make the difficult easy if You will it.",
+          ref: "Ibn Hibban (declared authentic); commonly cited alongside other hadith on hardship"
+        }
+      ]
+    }
+  ];
+
+  var els = {
+    catGrid: document.getElementById("catGrid"),
+    catTitle: document.getElementById("catTitle"),
+    catDesc: document.getElementById("catDesc"),
+    duaList: document.getElementById("duaList")
+  };
+
+  var currentCat = 0;
+
+  function renderGrid(){
+    els.catGrid.innerHTML = CATEGORIES.map(function(c, i){
+      return '<button type="button" class="cat-btn' + (i === currentCat ? " active" : "") + '" data-i="' + i + '">' +
+        '<span class="icon">' + c.icon + '</span>' +
+        '<span class="label">' + c.label + '</span>' +
+        '</button>';
+    }).join("");
+  }
+
+  function renderCategory(i){
+    currentCat = i;
+    var cat = CATEGORIES[i];
+    els.catTitle.textContent = cat.icon + " " + cat.label;
+    els.catDesc.textContent = cat.desc;
+    els.duaList.innerHTML = cat.duas.map(function(d){
+      return '<div class="dua-card">' +
+        '<div class="dua-title">' + d.title + '</div>' +
+        (d.arabic !== "—" ? '<div class="dua-arabic">' + d.arabic + '</div>' : '') +
+        (d.translit !== "—" ? '<div class="dua-translit">' + d.translit + '</div>' : '') +
+        '<div class="dua-translation">' + d.translation + '</div>' +
+        '<div class="dua-meta">' +
+          '<span class="dua-ref">' + d.ref + '</span>' +
+          '<button type="button" class="narrate-btn" data-text="' + escapeAttr(d.translation) + '">&#9835; Narrate</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+    renderGrid();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function escapeAttr(str){
+    return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  }
+
+  els.catGrid.addEventListener("click", function(e){
+    var btn = e.target.closest(".cat-btn");
+    if(!btn) return;
+    renderCategory(parseInt(btn.getAttribute("data-i"), 10));
+  });
+
+  els.duaList.addEventListener("click", function(e){
+    var btn = e.target.closest(".narrate-btn");
+    if(!btn) return;
+    var text = btn.getAttribute("data-text");
+    btn.textContent = "Speaking…";
+    speakText(text, function(){ btn.innerHTML = "&#9835; Narrate"; });
+  });
+
+  function speakText(text, onDone){
+    if(!("speechSynthesis" in window)){ onDone(); return; }
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 0.95;
+    utter.onend = onDone;
+    utter.onerror = onDone;
+    window.speechSynthesis.speak(utter);
+  }
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+
+  renderCategory(0);
+</script>
+</body>
+</html>

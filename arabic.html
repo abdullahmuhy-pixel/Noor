@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Learn Arabic — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+    --green-ok:#3F7D4E; --red-no:#A83232;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink); padding-bottom:40px; }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:22px 20px 18px; position:sticky; top:0; z-index:5;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.5rem; margin:10px 0 12px; }
+  .tab-row{ display:flex; gap:8px; overflow-x:auto; }
+  .tab-row button{
+    flex:none; background:rgba(251,247,238,0.08); border:1px solid rgba(217,192,143,0.3);
+    color:var(--parchment); padding:8px 14px; border-radius:20px; font-size:0.8rem; cursor:pointer;
+    font-family:'Inter',sans-serif; white-space:nowrap;
+  }
+  .tab-row button.active{ background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:600; }
+  main{ max-width:680px; margin:0 auto; padding:20px; }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .letter-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media (max-width:420px){ .letter-grid{ grid-template-columns:repeat(2,1fr); } }
+  .letter-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:12px; padding:14px; text-align:center; cursor:pointer;
+  }
+  .letter-card .glyph{ font-family:'Amiri',serif; font-size:2.2rem; }
+  .letter-card .name{ font-size:0.78rem; font-weight:600; margin-top:4px; }
+  .letter-card .example{ font-size:0.72rem; opacity:0.65; margin-top:3px; direction:rtl; }
+  .letter-card .example-en{ font-size:0.68rem; opacity:0.55; }
+
+  .num-row{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.2);
+    border-radius:12px; padding:12px 16px; margin-bottom:8px;
+  }
+  .num-row .glyph{ font-family:'Amiri',serif; font-size:1.5rem; width:40px; text-align:center; }
+  .num-row .word{ flex:1; padding:0 12px; font-size:0.95rem; }
+  .num-row .en{ font-size:0.8rem; opacity:0.6; }
+
+  .vocab-cat-nav{ display:flex; gap:8px; overflow-x:auto; margin-bottom:16px; }
+  .vocab-cat-nav button{
+    flex:none; background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    color:var(--ink); padding:7px 13px; border-radius:18px; font-size:0.78rem; cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .vocab-cat-nav button.active{ background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:600; }
+
+  .flash-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:14px; padding:20px; margin-bottom:10px; cursor:pointer; text-align:center;
+    min-height:90px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .flash-card .glyph{ font-family:'Amiri',serif; font-size:1.8rem; }
+  .flash-card .translit{ font-size:0.78rem; opacity:0.6; margin-top:4px; font-style:italic; }
+  .flash-card .meaning{ font-size:0.95rem; margin-top:8px; color:var(--gold); font-weight:600; display:none; }
+  .flash-card.flipped .meaning{ display:block; }
+  .flash-card .hint{ font-size:0.68rem; opacity:0.4; margin-top:6px; }
+
+  .quiz-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:16px; padding:24px; text-align:center; margin-bottom:16px;
+  }
+  .quiz-word{ font-family:'Amiri',serif; font-size:2.2rem; margin-bottom:6px; }
+  .quiz-translit{ font-size:0.85rem; opacity:0.6; margin-bottom:18px; font-style:italic; }
+  .quiz-options{ display:flex; flex-direction:column; gap:8px; }
+  .quiz-opt{
+    padding:12px; border-radius:10px; border:1px solid rgba(169,128,63,0.3);
+    background:var(--parchment); color:var(--ink); font-size:0.9rem; cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .quiz-opt.correct{ background:var(--green-ok); border-color:var(--green-ok); color:#fff; }
+  .quiz-opt.wrong{ background:var(--red-no); border-color:var(--red-no); color:#fff; }
+  .quiz-score{ text-align:center; font-size:0.85rem; opacity:0.7; margin-bottom:14px; }
+  button.primary{
+    width:100%; padding:13px; border-radius:12px; border:none;
+    background:var(--gold); color:var(--ink); font-weight:700; font-size:0.92rem;
+    cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .note{ font-size:0.76rem; opacity:0.6; line-height:1.6; margin-top:18px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Home</a>
+  <h1>Learn Arabic</h1>
+  <div class="tab-row" id="tabRow">
+    <button data-panel="alphabet" class="active">Alphabet</button>
+    <button data-panel="numbers">Numbers</button>
+    <button data-panel="vocab">Vocabulary</button>
+    <button data-panel="quiz">Practice</button>
+  </div>
+</header>
+
+<main>
+  <div class="panel active" id="panel-alphabet">
+    <p style="font-size:0.85rem; opacity:0.7; margin-top:0;">Tap any letter to hear it (where your device supports Arabic speech). Arabic is written and read right to left.</p>
+    <div class="letter-grid" id="letterGrid"></div>
+  </div>
+
+  <div class="panel" id="panel-numbers">
+    <p style="font-size:0.85rem; opacity:0.7; margin-top:0;">Arabic numerals (used in Arabic-script text) alongside the spoken words.</p>
+    <div id="numberList"></div>
+  </div>
+
+  <div class="panel" id="panel-vocab">
+    <div class="vocab-cat-nav" id="vocabCatNav"></div>
+    <p style="font-size:0.82rem; opacity:0.65; margin-top:0;">Tap a card to reveal its meaning.</p>
+    <div id="flashList"></div>
+  </div>
+
+  <div class="panel" id="panel-quiz">
+    <div class="quiz-score" id="quizScore">Score: 0 / 0</div>
+    <div class="quiz-card">
+      <div class="quiz-word" id="quizWord">—</div>
+      <div class="quiz-translit" id="quizTranslit">—</div>
+      <div class="quiz-options" id="quizOptions"></div>
+    </div>
+    <button class="primary" id="nextQuestionBtn">Next Word</button>
+  </div>
+
+  <div class="note">
+    This starts with foundational alphabet, numbers, and the vocabulary that appears most often in
+    the Qur'an — enough to begin recognizing real words as you read. It's a starting point rather
+    than a complete course, and will keep growing with more vocabulary, basic grammar, and sentence
+    structure over time.
+  </div>
+</main>
+
+<script>
+  var ALPHABET = [
+    { glyph: "ا", name: "Alif", example: "أَسَد", exampleEn: "asad — lion" },
+    { glyph: "ب", name: "Ba", example: "بَاب", exampleEn: "bab — door" },
+    { glyph: "ت", name: "Ta", example: "تَمْر", exampleEn: "tamr — dates" },
+    { glyph: "ث", name: "Tha (as in 'think')", example: "ثَعْلَب", exampleEn: "tha'lab — fox" },
+    { glyph: "ج", name: "Jeem", example: "جَبَل", exampleEn: "jabal — mountain" },
+    { glyph: "ح", name: "Ha (breathy)", example: "حَيَاة", exampleEn: "hayah — life" },
+    { glyph: "خ", name: "Kha (throaty)", example: "خُبْز", exampleEn: "khubz — bread" },
+    { glyph: "د", name: "Dal", example: "دَار", exampleEn: "dar — house" },
+    { glyph: "ذ", name: "Dhal (as in 'this')", example: "ذَهَب", exampleEn: "dhahab — gold" },
+    { glyph: "ر", name: "Ra (rolled)", example: "رَجُل", exampleEn: "rajul — man" },
+    { glyph: "ز", name: "Zay", example: "زَيْت", exampleEn: "zayt — oil" },
+    { glyph: "س", name: "Seen", example: "سَمَاء", exampleEn: "sama' — sky" },
+    { glyph: "ش", name: "Sheen", example: "شَمْس", exampleEn: "shams — sun" },
+    { glyph: "ص", name: "Sad (emphatic s)", example: "صَبْر", exampleEn: "sabr — patience" },
+    { glyph: "ض", name: "Dad (emphatic d)", example: "ضَوْء", exampleEn: "daw' — light" },
+    { glyph: "ط", name: "Ta (emphatic)", example: "طَرِيق", exampleEn: "tariq — path" },
+    { glyph: "ظ", name: "Za (emphatic)", example: "ظُلْم", exampleEn: "zulm — injustice" },
+    { glyph: "ع", name: "Ayn (guttural)", example: "عِلْم", exampleEn: "'ilm — knowledge" },
+    { glyph: "غ", name: "Ghayn", example: "غَفَرَ", exampleEn: "ghafara — he forgave" },
+    { glyph: "ف", name: "Fa", example: "فَجْر", exampleEn: "fajr — dawn" },
+    { glyph: "ق", name: "Qaf (deep k)", example: "قَلْب", exampleEn: "qalb — heart" },
+    { glyph: "ك", name: "Kaf", example: "كِتَاب", exampleEn: "kitab — book" },
+    { glyph: "ل", name: "Lam", example: "لَيْل", exampleEn: "layl — night" },
+    { glyph: "م", name: "Meem", example: "مَاء", exampleEn: "ma' — water" },
+    { glyph: "ن", name: "Noon", example: "نُور", exampleEn: "nur — light" },
+    { glyph: "هـ", name: "Ha (soft)", example: "هُدَى", exampleEn: "huda — guidance" },
+    { glyph: "و", name: "Waw", example: "وَجْه", exampleEn: "wajh — face" },
+    { glyph: "ي", name: "Ya", example: "يَوْم", exampleEn: "yawm — day" }
+  ];
+
+  var NUMBERS = [
+    { glyph: "٠", word: "صِفْر (sifr)", en: "zero" },
+    { glyph: "١", word: "وَاحِد (wahid)", en: "one" },
+    { glyph: "٢", word: "اِثْنَان (ithnan)", en: "two" },
+    { glyph: "٣", word: "ثَلَاثَة (thalatha)", en: "three" },
+    { glyph: "٤", word: "أَرْبَعَة (arba'a)", en: "four" },
+    { glyph: "٥", word: "خَمْسَة (khamsa)", en: "five" },
+    { glyph: "٦", word: "سِتَّة (sitta)", en: "six" },
+    { glyph: "٧", word: "سَبْعَة (sab'a)", en: "seven" },
+    { glyph: "٨", word: "ثَمَانِيَة (thamaniya)", en: "eight" },
+    { glyph: "٩", word: "تِسْعَة (tis'a)", en: "nine" },
+    { glyph: "١٠", word: "عَشَرَة ('ashara)", en: "ten" }
+  ];
+
+  var VOCAB = {
+    "Pronouns": [
+      { glyph: "أَنَا", translit: "ana", meaning: "I" },
+      { glyph: "أَنْتَ", translit: "anta", meaning: "you (to a man)" },
+      { glyph: "أَنْتِ", translit: "anti", meaning: "you (to a woman)" },
+      { glyph: "هُوَ", translit: "huwa", meaning: "he" },
+      { glyph: "هِيَ", translit: "hiya", meaning: "she" },
+      { glyph: "نَحْنُ", translit: "nahnu", meaning: "we" },
+      { glyph: "هُمْ", translit: "hum", meaning: "they" }
+    ],
+    "Common Nouns": [
+      { glyph: "اللّٰه", translit: "Allah", meaning: "Allah (God)" },
+      { glyph: "رَبّ", translit: "rabb", meaning: "Lord" },
+      { glyph: "رَحْمَة", translit: "rahmah", meaning: "mercy" },
+      { glyph: "كِتَاب", translit: "kitab", meaning: "book" },
+      { glyph: "يَوْم", translit: "yawm", meaning: "day" },
+      { glyph: "أَرْض", translit: "ard", meaning: "earth" },
+      { glyph: "سَمَاء", translit: "sama'", meaning: "sky, heaven" },
+      { glyph: "قَلْب", translit: "qalb", meaning: "heart" },
+      { glyph: "نَفْس", translit: "nafs", meaning: "soul, self" },
+      { glyph: "إِنْسَان", translit: "insan", meaning: "human being" },
+      { glyph: "نُور", translit: "nur", meaning: "light" },
+      { glyph: "عِلْم", translit: "'ilm", meaning: "knowledge" },
+      { glyph: "حَقّ", translit: "haqq", meaning: "truth" },
+      { glyph: "جَنَّة", translit: "jannah", meaning: "paradise, garden" },
+      { glyph: "نَار", translit: "nar", meaning: "fire" }
+    ],
+    "Common Verbs": [
+      { glyph: "قَالَ", translit: "qala", meaning: "he said" },
+      { glyph: "كَانَ", translit: "kana", meaning: "he was" },
+      { glyph: "جَعَلَ", translit: "ja'ala", meaning: "he made" },
+      { glyph: "عَلِمَ", translit: "'alima", meaning: "he knew" },
+      { glyph: "آمَنَ", translit: "amana", meaning: "he believed" },
+      { glyph: "عَمِلَ", translit: "'amila", meaning: "he did, worked" },
+      { glyph: "خَلَقَ", translit: "khalaqa", meaning: "he created" },
+      { glyph: "رَزَقَ", translit: "razaqa", meaning: "he provided" },
+      { glyph: "غَفَرَ", translit: "ghafara", meaning: "he forgave" },
+      { glyph: "هَدَى", translit: "hada", meaning: "he guided" }
+    ],
+    "Descriptions of Allah": [
+      { glyph: "رَحِيم", translit: "rahim", meaning: "especially merciful" },
+      { glyph: "عَظِيم", translit: "'azim", meaning: "great, mighty" },
+      { glyph: "كَرِيم", translit: "karim", meaning: "generous, noble" },
+      { glyph: "عَلِيم", translit: "'alim", meaning: "all-knowing" },
+      { glyph: "حَكِيم", translit: "hakim", meaning: "wise" },
+      { glyph: "قَدِير", translit: "qadir", meaning: "all-capable" },
+      { glyph: "غَفُور", translit: "ghafur", meaning: "all-forgiving" }
+    ],
+    "Everyday Phrases": [
+      { glyph: "السَّلَامُ عَلَيْكُم", translit: "as-salamu 'alaykum", meaning: "peace be upon you (greeting)" },
+      { glyph: "وَعَلَيْكُمُ السَّلَام", translit: "wa 'alaykumu s-salam", meaning: "and peace be upon you (reply)" },
+      { glyph: "شُكْرًا", translit: "shukran", meaning: "thank you" },
+      { glyph: "مِنْ فَضْلِك", translit: "min fadlik", meaning: "please" },
+      { glyph: "نَعَم", translit: "na'am", meaning: "yes" },
+      { glyph: "لَا", translit: "la", meaning: "no" },
+      { glyph: "كَيْفَ حَالُك", translit: "kayfa haluk", meaning: "how are you" }
+    ]
+  };
+
+  // ---------- Alphabet ----------
+  var letterGrid = document.getElementById("letterGrid");
+  letterGrid.innerHTML = ALPHABET.map(function(l, i){
+    return '<div class="letter-card" data-i="' + i + '">' +
+      '<div class="glyph">' + l.glyph + '</div>' +
+      '<div class="name">' + l.name + '</div>' +
+      '<div class="example">' + l.example + '</div>' +
+      '<div class="example-en">' + l.exampleEn + '</div>' +
+      '</div>';
+  }).join("");
+  letterGrid.addEventListener("click", function(e){
+    var card = e.target.closest(".letter-card");
+    if(!card) return;
+    var l = ALPHABET[parseInt(card.getAttribute("data-i"), 10)];
+    speakArabic(l.example);
+  });
+
+  // ---------- Numbers ----------
+  var numberList = document.getElementById("numberList");
+  numberList.innerHTML = NUMBERS.map(function(n){
+    return '<div class="num-row"><span class="glyph">' + n.glyph + '</span>' +
+      '<span class="word">' + n.word + '</span>' +
+      '<span class="en">' + n.en + '</span></div>';
+  }).join("");
+
+  // ---------- Vocabulary ----------
+  var vocabCatNav = document.getElementById("vocabCatNav");
+  var flashList = document.getElementById("flashList");
+  var vocabCats = Object.keys(VOCAB);
+  var currentVocabCat = 0;
+
+  function renderVocabNav(){
+    vocabCatNav.innerHTML = vocabCats.map(function(c, i){
+      return '<button data-i="' + i + '" class="' + (i === currentVocabCat ? "active" : "") + '">' + c + '</button>';
+    }).join("");
+  }
+  function renderFlashList(){
+    var words = VOCAB[vocabCats[currentVocabCat]];
+    flashList.innerHTML = words.map(function(w){
+      return '<div class="flash-card" data-meaning="' + w.meaning + '">' +
+        '<div class="glyph">' + w.glyph + '</div>' +
+        '<div class="translit">' + w.translit + '</div>' +
+        '<div class="meaning">' + w.meaning + '</div>' +
+        '<div class="hint">tap to reveal</div>' +
+        '</div>';
+    }).join("");
+  }
+  vocabCatNav.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-i]");
+    if(!btn) return;
+    currentVocabCat = parseInt(btn.getAttribute("data-i"), 10);
+    renderVocabNav();
+    renderFlashList();
+  });
+  flashList.addEventListener("click", function(e){
+    var card = e.target.closest(".flash-card");
+    if(!card) return;
+    card.classList.toggle("flipped");
+  });
+  renderVocabNav();
+  renderFlashList();
+
+  // ---------- Quiz ----------
+  var allVocabWords = [];
+  Object.keys(VOCAB).forEach(function(cat){
+    VOCAB[cat].forEach(function(w){ allVocabWords.push(w); });
+  });
+
+  var quizScore = { correct: 0, total: 0 };
+  var els = {
+    quizWord: document.getElementById("quizWord"),
+    quizTranslit: document.getElementById("quizTranslit"),
+    quizOptions: document.getElementById("quizOptions"),
+    quizScore: document.getElementById("quizScore"),
+    nextQuestionBtn: document.getElementById("nextQuestionBtn")
+  };
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function newQuestion(){
+    var correctWord = allVocabWords[Math.floor(Math.random() * allVocabWords.length)];
+    var wrongPool = allVocabWords.filter(function(w){ return w.meaning !== correctWord.meaning; });
+    var wrongs = shuffle(wrongPool).slice(0, 3);
+    var options = shuffle([correctWord].concat(wrongs));
+
+    els.quizWord.textContent = correctWord.glyph;
+    els.quizTranslit.textContent = correctWord.translit;
+    els.quizOptions.innerHTML = options.map(function(o){
+      return '<button type="button" class="quiz-opt" data-meaning="' + o.meaning + '">' + o.meaning + '</button>';
+    }).join("");
+    els.quizOptions.setAttribute("data-correct", correctWord.meaning);
+    els.quizOptions.setAttribute("data-answered", "false");
+  }
+
+  els.quizOptions.addEventListener("click", function(e){
+    var btn = e.target.closest(".quiz-opt");
+    if(!btn) return;
+    if(els.quizOptions.getAttribute("data-answered") === "true") return;
+    els.quizOptions.setAttribute("data-answered", "true");
+
+    var correct = els.quizOptions.getAttribute("data-correct");
+    var chosen = btn.getAttribute("data-meaning");
+    quizScore.total++;
+    if(chosen === correct){
+      quizScore.correct++;
+      btn.classList.add("correct");
+    } else {
+      btn.classList.add("wrong");
+      Array.prototype.forEach.call(els.quizOptions.children, function(b){
+        if(b.getAttribute("data-meaning") === correct) b.classList.add("correct");
+      });
+    }
+    els.quizScore.textContent = "Score: " + quizScore.correct + " / " + quizScore.total;
+  });
+
+  els.nextQuestionBtn.addEventListener("click", newQuestion);
+
+  // ---------- Tabs ----------
+  var tabRow = document.getElementById("tabRow");
+  tabRow.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-panel]");
+    if(!btn) return;
+    Array.prototype.forEach.call(tabRow.children, function(b){ b.classList.remove("active"); });
+    btn.classList.add("active");
+    document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("active"); });
+    document.getElementById("panel-" + btn.getAttribute("data-panel")).classList.add("active");
+    if(btn.getAttribute("data-panel") === "quiz" && els.quizOptions.children.length === 0){
+      newQuestion();
+    }
+  });
+
+  // ---------- Speech ----------
+  function speakArabic(text){
+    if(!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ar-SA";
+    utter.rate = 0.8;
+    window.speechSynthesis.speak(utter);
+  }
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+</script>
+</body>
+</html>
