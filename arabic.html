@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Learn Arabic — Noor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#152E2B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#152E2B; --ink-soft:#2C4A45;
+    --parchment:#FBF7EE; --parchment-dim:#F2ECDD;
+    --gold:#A9803F; --gold-soft:#D9C08F;
+    --green-ok:#3F7D4E; --red-no:#A83232;
+  }
+  [data-theme="dark"]{
+    --ink:#0E1F1D; --ink-soft:#16302C;
+    --parchment:#171512; --parchment-dim:#211D17;
+    --gold:#D9B26B; --gold-soft:#E7CE9C;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; background:var(--parchment); color:var(--ink); padding-bottom:60px; }
+  header{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--parchment); padding:18px 20px 16px; position:sticky; top:0; z-index:10;
+  }
+  header a{ color:var(--gold-soft); text-decoration:none; font-size:0.85rem; }
+  h1{ font-family:'Amiri',serif; font-size:1.4rem; margin:8px 0 10px; }
+  .stat-row{ display:flex; gap:10px; margin-bottom:10px; }
+  .stat-pill{
+    display:flex; align-items:center; gap:5px; background:rgba(251,247,238,0.08);
+    border:1px solid rgba(217,192,143,0.3); border-radius:20px; padding:5px 12px; font-size:0.8rem; font-weight:700;
+  }
+  .progress-bar{ height:6px; border-radius:3px; background:rgba(251,247,238,0.15); overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--gold); width:0%; transition:width 0.3s ease; }
+  .progress-label{ font-size:0.7rem; opacity:0.6; margin-top:4px; }
+
+  .view-toggle{ display:flex; gap:8px; margin-top:12px; }
+  .view-toggle button{
+    flex:1; background:rgba(251,247,238,0.08); border:1px solid rgba(217,192,143,0.3);
+    color:var(--parchment); padding:9px; border-radius:10px; font-size:0.82rem; cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .view-toggle button.active{ background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:600; }
+
+  main{ max-width:680px; margin:0 auto; padding:24px 20px; }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  /* ---------- Visual skill path ---------- */
+  .path-level-label{
+    text-align:center; font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; opacity:0.55;
+    margin:26px 0 14px;
+  }
+  .path-level-label:first-child{ margin-top:0; }
+  .path-node-row{ display:flex; justify-content:center; margin-bottom:6px; }
+  .path-node-row.offset-left{ justify-content:flex-start; padding-left:18%; }
+  .path-node-row.offset-right{ justify-content:flex-end; padding-right:18%; }
+  .path-node{
+    width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; cursor:pointer; border:none; position:relative;
+    background:var(--gold); color:var(--ink); box-shadow:0 4px 0 rgba(0,0,0,0.15);
+  }
+  .path-node.locked{ background:rgba(169,128,63,0.25); color:rgba(21,46,43,0.4); cursor:not-allowed; box-shadow:none; }
+  [data-theme="dark"] .path-node.locked{ color:rgba(251,247,238,0.3); }
+  .path-node.done{ background:var(--green-ok); color:#fff; }
+  .path-node .num{ font-weight:700; font-size:1.1rem; }
+  .path-node .star{ font-size:0.7rem; position:absolute; top:-6px; right:-4px; }
+  .path-node-label{ text-align:center; font-size:0.75rem; opacity:0.75; max-width:110px; margin:0 auto 18px; line-height:1.3; }
+
+  .badges-box{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25); border-radius:14px;
+    padding:16px; margin-top:30px;
+  }
+  .badges-box h3{ font-family:'Amiri',serif; margin:0 0 10px; font-size:1.05rem; color:var(--gold); }
+  .badge-grid{ display:flex; flex-wrap:wrap; gap:10px; }
+  .badge{
+    display:flex; flex-direction:column; align-items:center; gap:4px; width:72px; opacity:0.3;
+    font-size:0.68rem; text-align:center;
+  }
+  .badge.earned{ opacity:1; }
+  .badge .icon{ font-size:1.6rem; }
+
+  /* ---------- Lesson detail / exercise runner ---------- */
+  .back-to-list{ background:none; border:none; color:var(--gold); font-size:0.85rem; cursor:pointer; padding:0; }
+  .lesson-title{ font-family:'Amiri',serif; font-size:1.4rem; color:var(--gold); margin:10px 0 16px; }
+  .lesson-content p{ font-size:0.95rem; line-height:1.7; margin:0 0 14px; }
+  .example-table{ width:100%; border-collapse:collapse; margin-bottom:18px; font-size:0.85rem; }
+  .example-table th{
+    text-align:left; font-size:0.7rem; text-transform:uppercase; opacity:0.55; padding:6px 8px;
+    border-bottom:1px solid rgba(169,128,63,0.3);
+  }
+  .example-table td{ padding:8px; border-bottom:1px solid rgba(169,128,63,0.12); vertical-align:middle; }
+  .example-table .ar{ font-family:'Amiri',serif; font-size:1.2rem; direction:rtl; text-align:right; }
+  .vocab-mini{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.2); border-radius:12px;
+    padding:14px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .vocab-mini .ar{ font-family:'Amiri',serif; font-size:1.2rem; }
+  .vocab-mini .en{ font-size:0.82rem; opacity:0.7; text-align:right; }
+
+  button.primary{
+    width:100%; padding:14px; border-radius:12px; border:none;
+    background:var(--gold); color:var(--ink); font-weight:700; font-size:0.95rem;
+    cursor:pointer; font-family:'Inter',sans-serif; margin-top:18px;
+  }
+  button.primary:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  /* ---------- Exercise screen ---------- */
+  .exercise-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .hearts{ font-size:1.1rem; letter-spacing:2px; }
+  .ex-progress{ flex:1; height:8px; background:rgba(169,128,63,0.2); border-radius:4px; margin:0 14px; overflow:hidden; }
+  .ex-progress-fill{ height:100%; background:var(--gold); transition:width 0.25s ease; }
+  .exercise-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25); border-radius:16px;
+    padding:22px; margin-bottom:18px;
+  }
+  .ex-prompt{ font-size:0.95rem; margin-bottom:16px; }
+  .ex-prompt .ar-big{ font-family:'Amiri',serif; font-size:1.8rem; color:var(--gold); display:block; margin-bottom:8px; }
+  .mc-opt{
+    display:block; width:100%; text-align:left; padding:13px 16px; margin-bottom:8px;
+    border-radius:11px; border:2px solid rgba(169,128,63,0.3); background:var(--parchment); color:var(--ink);
+    font-size:0.9rem; cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .mc-opt.correct{ background:var(--green-ok); border-color:var(--green-ok); color:#fff; }
+  .mc-opt.wrong{ background:var(--red-no); border-color:var(--red-no); color:#fff; }
+
+  .wb-answer{
+    min-height:52px; border:2px dashed rgba(169,128,63,0.4); border-radius:12px; padding:8px;
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; align-items:center;
+  }
+  .wb-bank{ display:flex; flex-wrap:wrap; gap:8px; }
+  .wb-tile{
+    padding:9px 14px; border-radius:9px; border:1px solid rgba(169,128,63,0.35);
+    background:var(--parchment); color:var(--ink); font-family:'Amiri',serif; font-size:1.05rem; cursor:pointer;
+  }
+  .wb-tile.used{ opacity:0.25; pointer-events:none; }
+  .wb-answer .wb-tile{ background:var(--gold); border-color:var(--gold); color:var(--ink); }
+
+  .ex-feedback{
+    margin-top:14px; padding:12px 14px; border-radius:10px; font-size:0.88rem; display:none;
+  }
+  .ex-feedback.show{ display:block; }
+  .ex-feedback.correct{ background:rgba(63,125,78,0.15); color:var(--green-ok); border:1px solid var(--green-ok); }
+  .ex-feedback.wrong{ background:rgba(168,50,50,0.12); color:var(--red-no); border:1px solid var(--red-no); }
+
+  .result-screen{ text-align:center; padding:30px 20px; }
+  .result-screen .big-icon{ font-size:3rem; margin-bottom:10px; }
+  .result-screen h2{ font-family:'Amiri',serif; color:var(--gold); margin:0 0 6px; }
+  .result-stats{ display:flex; justify-content:center; gap:24px; margin:20px 0; }
+  .result-stats div{ text-align:center; }
+  .result-stats .val{ font-size:1.5rem; font-weight:700; color:var(--gold); }
+  .result-stats .lbl{ font-size:0.72rem; opacity:0.6; }
+
+  /* ---------- Vocab drill ---------- */
+  .vocab-cat-nav{ display:flex; gap:8px; overflow-x:auto; margin-bottom:16px; }
+  .vocab-cat-nav button{
+    flex:none; background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    color:var(--ink); padding:7px 13px; border-radius:18px; font-size:0.78rem; cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .vocab-cat-nav button.active{ background:var(--gold); border-color:var(--gold); color:var(--ink); font-weight:600; }
+  .flash-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:14px; padding:20px; margin-bottom:10px; cursor:pointer; text-align:center;
+    min-height:90px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .flash-card .glyph{ font-family:'Amiri',serif; font-size:1.8rem; }
+  .flash-card .translit{ font-size:0.78rem; opacity:0.6; margin-top:4px; font-style:italic; }
+  .flash-card .meaning{ font-size:0.95rem; margin-top:8px; color:var(--gold); font-weight:600; display:none; }
+  .flash-card.flipped .meaning{ display:block; }
+  .flash-card .hint{ font-size:0.68rem; opacity:0.4; margin-top:6px; }
+  .quiz-card{
+    background:var(--parchment-dim); border:1px solid rgba(169,128,63,0.25);
+    border-radius:16px; padding:24px; text-align:center; margin-bottom:16px;
+  }
+  .quiz-word{ font-family:'Amiri',serif; font-size:2.2rem; margin-bottom:6px; }
+  .quiz-translit{ font-size:0.85rem; opacity:0.6; margin-bottom:18px; font-style:italic; }
+  .quiz-score{ text-align:center; font-size:0.85rem; opacity:0.7; margin-bottom:14px; }
+
+  .note{ font-size:0.76rem; opacity:0.6; line-height:1.6; margin-top:24px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html">&larr; Back to Home</a>
+  <h1>Learn Arabic</h1>
+  <div class="stat-row">
+    <div class="stat-pill">⭐ <span id="xpStat">0</span> XP</div>
+    <div class="stat-pill">🔥 <span id="streakStat">0</span> day streak</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel">0 of 0 lessons complete</div>
+  <div class="view-toggle">
+    <button data-view="path" class="active">Path</button>
+    <button data-view="vocab">Vocabulary Drill</button>
+  </div>
+</header>
+
+<main>
+  <div class="view active" id="view-path">
+    <div id="pathContainer"></div>
+    <div class="badges-box">
+      <h3>Badges</h3>
+      <div class="badge-grid" id="badgeGrid"></div>
+    </div>
+  </div>
+
+  <div id="lessonDetail" style="display:none;"></div>
+  <div id="exerciseScreen" style="display:none;"></div>
+
+  <div class="view" id="view-vocab">
+    <div class="vocab-cat-nav" id="vocabCatNav"></div>
+    <div class="quiz-score" id="drillScore">Score: 0 / 0</div>
+    <div class="quiz-card">
+      <div class="quiz-word" id="quizWord">—</div>
+      <div class="quiz-translit" id="quizTranslit">—</div>
+      <div class="wb-bank" id="quizOptions" style="flex-direction:column;"></div>
+    </div>
+    <button class="primary" id="nextQuestionBtn">Next Word</button>
+    <p style="font-size:0.82rem; opacity:0.65; margin-top:20px;">Words you get wrong show up more often here — this is spaced repetition, the same principle behind most language apps. Or browse as flashcards instead:</p>
+    <div id="flashList"></div>
+  </div>
+
+  <div class="note" id="footNote">
+    Being upfront about what this can and can't do: this course will take you from zero to genuinely
+    reading and constructing real Arabic sentences, with the same hearts/XP/streak structure that
+    makes apps like Duolingo effective for building a daily habit. What it still can't fully replace:
+    listening to native speakers and real conversation practice with correction — those matter for
+    actual speaking fluency, and no static app, including this one, can substitute for them entirely.
+  </div>
+</main>
+
+<script>
+  // =====================================================================
+  // LESSON CONTENT — teaching material shown before each lesson's exercises
+  // =====================================================================
+  var LESSONS = [
+    {
+      level: "Foundations", title: "The Alphabet & Letter Forms",
+      content: [
+        { type: "p", text: "Arabic has 28 letters, written and read from right to left. Unlike English print, Arabic letters change shape slightly depending on whether they're alone, at the start of a word, in the middle, or at the end — because most letters connect to their neighbors, the way cursive handwriting does." },
+        { type: "p", text: "Six letters never connect to the letter after them: ا د ذ ر ز و. Every other letter connects on both sides when it's in the middle of a word." },
+        { type: "table", headers: ["Letter", "Isolated", "Initial", "Medial", "Final", "Example"], rows: [
+          ["Alif","ا","ا","ـا","ـا","أَسَد (asad) — lion"],
+          ["Ba","ب","بـ","ـبـ","ـب","بَاب (bab) — door"],
+          ["Ta","ت","تـ","ـتـ","ـت","تَمْر (tamr) — dates"],
+          ["Tha","ث","ثـ","ـثـ","ـث","ثَعْلَب (tha'lab) — fox"],
+          ["Jeem","ج","جـ","ـجـ","ـج","جَبَل (jabal) — mountain"],
+          ["Ha (breathy)","ح","حـ","ـحـ","ـح","حَيَاة (hayah) — life"],
+          ["Kha (throaty)","خ","خـ","ـخـ","ـخ","خُبْز (khubz) — bread"],
+          ["Dal","د","د","ـد","ـد","دَار (dar) — house"],
+          ["Dhal","ذ","ذ","ـذ","ـذ","ذَهَب (dhahab) — gold"],
+          ["Ra","ر","ر","ـر","ـر","رَجُل (rajul) — man"],
+          ["Zay","ز","ز","ـز","ـز","زَيْت (zayt) — oil"],
+          ["Seen","س","سـ","ـسـ","ـس","سَمَاء (sama') — sky"],
+          ["Sheen","ش","شـ","ـشـ","ـش","شَمْس (shams) — sun"],
+          ["Sad","ص","صـ","ـصـ","ـص","صَبْر (sabr) — patience"],
+          ["Dad","ض","ضـ","ـضـ","ـض","ضَوْء (daw') — light"],
+          ["Ta (emphatic)","ط","طـ","ـطـ","ـط","طَرِيق (tariq) — path"],
+          ["Za (emphatic)","ظ","ظـ","ـظـ","ـظ","ظُلْم (zulm) — injustice"],
+          ["Ayn","ع","عـ","ـعـ","ـع","عِلْم ('ilm) — knowledge"],
+          ["Ghayn","غ","غـ","ـغـ","ـغ","غَفَرَ (ghafara) — he forgave"],
+          ["Fa","ف","فـ","ـفـ","ـف","فَجْر (fajr) — dawn"],
+          ["Qaf","ق","قـ","ـقـ","ـق","قَلْب (qalb) — heart"],
+          ["Kaf","ك","كـ","ـكـ","ـك","كِتَاب (kitab) — book"],
+          ["Lam","ل","لـ","ـلـ","ـل","لَيْل (layl) — night"],
+          ["Meem","م","مـ","ـمـ","ـم","مَاء (ma') — water"],
+          ["Noon","ن","نـ","ـنـ","ـن","نُور (nur) — light"],
+          ["Ha (soft)","ه","هـ","ـهـ","ـه","هُدَى (huda) — guidance"],
+          ["Waw","و","و","ـو","ـو","وَجْه (wajh) — face"],
+          ["Ya","ي","يـ","ـيـ","ـي","يَوْم (yawm) — day"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "How many letters does the Arabic alphabet have?", opts: ["26", "28", "30", "22"], correct: 1 },
+        { type: "mc", q: "Which direction is Arabic read in?", opts: ["Left to right", "Right to left", "Top to bottom"], correct: 1 },
+        { type: "mc", q: "How many letters never connect to the letter after them?", opts: ["Six", "Zero", "All of them", "Twelve"], correct: 0 }
+      ]
+    },
+    {
+      level: "Foundations", title: "Vowels & Diacritics",
+      content: [
+        { type: "p", text: "Arabic script normally shows only consonants and long vowels. Short vowels are shown with small marks called harakat, placed above or below the letter." },
+        { type: "table", headers: ["Mark", "Name", "Sound", "Example"], rows: [
+          ["ـَ", "Fatha", "short 'a'", "بَ (ba)"],
+          ["ـِ", "Kasra", "short 'i'", "بِ (bi)"],
+          ["ـُ", "Damma", "short 'u'", "بُ (bu)"],
+          ["ـْ", "Sukun", "no vowel", "بْ (b)"],
+          ["ـّ", "Shadda", "doubles the consonant", "بّ (bb)"]
+        ]},
+        { type: "p", text: "Long vowels are written as full letters: ا makes a long 'aa', و makes a long 'uu', and ي makes a long 'ii' — كِتَاب (kitab) has a long 'aa' from the ا." },
+        { type: "p", text: "Tanween (ً ٍ ٌ) marks an indefinite noun, adding an 'n' sound — كِتَابٌ (kitabun, 'a book') vs الكِتَابُ (al-kitabu, 'the book')." }
+      ],
+      exercises: [
+        { type: "mc", q: "What sound does a fatha (ـَ) represent?", opts: ["Short 'u'", "Short 'a'", "Short 'i'", "No vowel"], correct: 1 },
+        { type: "mc", q: "What does a sukun (ـْ) tell you?", opts: ["Double the letter", "No vowel follows", "It's a long vowel"], correct: 1 },
+        { type: "mc", q: "Which of these makes a long vowel when written as a full letter?", opts: ["ب", "ت", "و"], correct: 2 }
+      ]
+    },
+    {
+      level: "Foundations", title: "Numbers",
+      content: [
+        { type: "p", text: "Arabic numerals look different from the digits used in English." },
+        { type: "table", headers: ["Numeral", "Word", "Meaning"], rows: [
+          ["٠", "صِفْر (sifr)", "zero"], ["١", "وَاحِد (wahid)", "one"], ["٢", "اِثْنَان (ithnan)", "two"],
+          ["٣", "ثَلَاثَة (thalatha)", "three"], ["٤", "أَرْبَعَة (arba'a)", "four"], ["٥", "خَمْسَة (khamsa)", "five"],
+          ["٦", "سِتَّة (sitta)", "six"], ["٧", "سَبْعَة (sab'a)", "seven"], ["٨", "ثَمَانِيَة (thamaniya)", "eight"],
+          ["٩", "تِسْعَة (tis'a)", "nine"], ["١٠", "عَشَرَة ('ashara)", "ten"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "What does ثَلَاثَة (thalatha) mean?", opts: ["Two", "Three", "Five"], correct: 1 },
+        { type: "mc", q: "Which numeral is ٥؟", opts: ["Four", "Five", "Six"], correct: 1 }
+      ]
+    },
+    {
+      level: "Foundations", title: "Greetings & Basic Phrases",
+      content: [
+        { type: "p", text: "A handful of everyday phrases you'll hear and use constantly." },
+        { type: "vocab", items: [
+          { ar: "السَّلَامُ عَلَيْكُم", en: "as-salamu 'alaykum — peace be upon you" },
+          { ar: "وَعَلَيْكُمُ السَّلَام", en: "wa 'alaykumu s-salam — and peace be upon you (reply)" },
+          { ar: "شُكْرًا", en: "shukran — thank you" },
+          { ar: "عَفْوًا", en: "'afwan — you're welcome" },
+          { ar: "نَعَم", en: "na'am — yes" },
+          { ar: "لَا", en: "la — no" }
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "How do you reply to 'as-salamu 'alaykum'?", opts: ["Shukran", "Wa 'alaykumu s-salam", "Na'am"], correct: 1 },
+        { type: "mc", q: "What does 'shukran' mean?", opts: ["Please", "Thank you", "Yes"], correct: 1 },
+        { type: "wordbank", prompt: "Build the reply to a greeting: 'and peace be upon you'",
+          bank: ["وَعَلَيْكُمُ", "السَّلَام", "شُكْرًا", "نَعَم"], correctOrder: ["وَعَلَيْكُمُ", "السَّلَام"] }
+      ]
+    },
+    {
+      level: "Nouns & Sentences", title: "Sun & Moon Letters, and 'The'",
+      content: [
+        { type: "p", text: "The word 'the' is the prefix ال (al-), attached directly to a noun. How it's pronounced depends on the noun's first letter." },
+        { type: "p", text: "Moon letters keep 'al-' pronounced clearly: ا ب ج ح خ ع غ ف ق ك م ه و ي. Example: القَمَر (al-qamar, 'the moon')." },
+        { type: "p", text: "Sun letters absorb the ل entirely, doubling the next letter instead: ت ث د ذ ر ز س ش ص ض ط ظ ل ن. Example: الشَّمْس is pronounced ash-shams, not al-shams." },
+        { type: "table", headers: ["Written", "Pronounced", "Meaning", "Type"], rows: [
+          ["القَمَر", "al-qamar", "the moon", "Moon letter"],
+          ["الشَّمْس", "ash-shams", "the sun", "Sun letter"],
+          ["الكِتَاب", "al-kitab", "the book", "Moon letter"],
+          ["الرَّجُل", "ar-rajul", "the man", "Sun letter"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "How is الشَّمْس actually pronounced?", opts: ["al-shams", "ash-shams", "a-shams"], correct: 1 },
+        { type: "mc", q: "ق (qaf) is which type of letter?", opts: ["Sun letter", "Moon letter"], correct: 1 }
+      ]
+    },
+    {
+      level: "Nouns & Sentences", title: "Gender of Nouns",
+      content: [
+        { type: "p", text: "Every Arabic noun is masculine or feminine. Most nouns are masculine by default." },
+        { type: "p", text: "The clearest sign of a feminine noun is ة (ta marbuta) at the end — مَدْرَسَة (madrasah, 'school')." },
+        { type: "p", text: "A few feminine nouns skip this ending — mostly paired body parts (عَيْن — eye) and most country/city names." },
+        { type: "table", headers: ["Arabic", "Transliteration", "Meaning", "Gender"], rows: [
+          ["كِتَاب", "kitab", "book", "Masculine"], ["مَدْرَسَة", "madrasah", "school", "Feminine (ة)"],
+          ["بَيْت", "bayt", "house", "Masculine"], ["شَمْس", "shams", "sun", "Feminine (no ة)"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "What letter usually marks a noun as feminine?", opts: ["ت", "ة", "ا"], correct: 1 },
+        { type: "mc", q: "Default gender of an Arabic noun with no feminine marker?", opts: ["Feminine", "Masculine", "Neutral"], correct: 1 }
+      ]
+    },
+    {
+      level: "Nouns & Sentences", title: "Personal Pronouns",
+      content: [
+        { type: "p", text: "Arabic pronouns distinguish gender and have a special dual form for exactly two." },
+        { type: "table", headers: ["Arabic", "Transliteration", "Meaning"], rows: [
+          ["أَنَا", "ana", "I"], ["أَنْتَ", "anta", "you (man)"], ["أَنْتِ", "anti", "you (woman)"],
+          ["هُوَ", "huwa", "he"], ["هِيَ", "hiya", "she"], ["نَحْنُ", "nahnu", "we"],
+          ["أَنْتُمَا", "antuma", "you two"], ["هُمَا", "huma", "they two"],
+          ["أَنْتُم", "antum", "you all (m.)"], ["هُم", "hum", "they (m.)"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "How do you say 'you' to a woman?", opts: ["anta", "anti", "antum"], correct: 1 },
+        { type: "mc", q: "What's special about 'antuma' and 'huma'?", opts: ["Formal only", "Refer to exactly two", "Feminine only"], correct: 1 },
+        { type: "wordbank", prompt: "Build: 'We' + 'students' → 'nahnu tullab' (translate: We are students)",
+          bank: ["نَحْنُ", "طُلَّابٌ", "أَنَا", "هُم"], correctOrder: ["نَحْنُ", "طُلَّابٌ"] }
+      ]
+    },
+    {
+      level: "Nouns & Sentences", title: "Possessive Suffixes",
+      content: [
+        { type: "p", text: "Rather than a separate word for 'my' or 'his', Arabic attaches a short suffix onto the end of the noun." },
+        { type: "table", headers: ["Arabic", "Transliteration", "Meaning"], rows: [
+          ["كِتَابِي", "kitabi", "my book"], ["كِتَابُكَ", "kitabuka", "your book (m.)"],
+          ["كِتَابُهُ", "kitabuhu", "his book"], ["كِتَابُهَا", "kitabuha", "her book"],
+          ["كِتَابُنَا", "kitabuna", "our book"], ["كِتَابُهُم", "kitabuhum", "their book"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "How would you say 'her book'?", opts: ["kitabuhu", "kitabuha", "kitabuki"], correct: 1 },
+        { type: "mc", q: "Is the possessive a separate word or an attached suffix?", opts: ["Separate word", "Attached suffix"], correct: 1 }
+      ]
+    },
+    {
+      level: "Nouns & Sentences", title: "Demonstrative Pronouns",
+      content: [
+        { type: "p", text: "'This' and 'that' change based on gender." },
+        { type: "table", headers: ["Arabic", "Transliteration", "Meaning"], rows: [
+          ["هَذَا", "hadha", "this (m.)"], ["هَذِهِ", "hadhihi", "this (f.)"],
+          ["ذَلِكَ", "dhalika", "that (m.)"], ["تِلْكَ", "tilka", "that (f.)"],
+          ["هَؤُلَاءِ", "ha'ula'i", "these"], ["أُولَئِكَ", "ula'ika", "those"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "'This' for a feminine noun like مَدْرَسَة (school)?", opts: ["hadha", "hadhihi", "dhalika"], correct: 1 },
+        { type: "mc", q: "What does هَؤُلَاءِ (ha'ula'i) mean?", opts: ["That (m.)", "These", "This (f.)"], correct: 1 }
+      ]
+    },
+    {
+      level: "Nouns & Sentences", title: "The Nominal Sentence",
+      content: [
+        { type: "p", text: "Arabic doesn't need a word for 'is' in a simple descriptive sentence — you just place two words next to each other." },
+        { type: "table", headers: ["Arabic", "Literal words", "Meaning"], rows: [
+          ["هَذَا كِتَابٌ", "this — a book", "This is a book."],
+          ["البَيْتُ كَبِيرٌ", "the-house — big", "The house is big."]
+        ]},
+        { type: "p", text: "This structure is called a nominal sentence (jumla ismiyya)." }
+      ],
+      exercises: [
+        { type: "mc", q: "Do you need a word for 'is' in a simple Arabic nominal sentence?", opts: ["Yes, always", "No — it's understood", "Only in the past"], correct: 1 },
+        { type: "wordbank", prompt: "Translate: 'This is a book' (hadha kitabun)",
+          bank: ["هَذَا", "كِتَابٌ", "ذَلِكَ", "كَبِيرٌ"], correctOrder: ["هَذَا", "كِتَابٌ"] },
+        { type: "wordbank", prompt: "Translate: 'The house is big' (al-baytu kabirun)",
+          bank: ["البَيْتُ", "كَبِيرٌ", "هَذَا", "صَغِيرٌ"], correctOrder: ["البَيْتُ", "كَبِيرٌ"] }
+      ]
+    },
+    {
+      level: "Nouns & Sentences", title: "Idafa — The Possessive Construction",
+      content: [
+        { type: "p", text: "To say 'the man's house', place two nouns directly next to each other. The first drops 'al-'; the second keeps it." },
+        { type: "table", headers: ["Arabic", "Literal order", "Meaning"], rows: [
+          ["بَيْتُ الرَّجُلِ", "house-of the-man", "the man's house"],
+          ["كِتَابُ الطَّالِبِ", "book-of the-student", "the student's book"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "In idafa, does the first noun keep 'al-'?", opts: ["Yes", "No, it drops it"], correct: 1 },
+        { type: "wordbank", prompt: "Build: 'the student's book' (kitabu at-talibi)",
+          bank: ["كِتَابُ", "الطَّالِبِ", "بَيْتُ", "الرَّجُلِ"], correctOrder: ["كِتَابُ", "الطَّالِبِ"] }
+      ]
+    },
+    {
+      level: "Nouns & Sentences", title: "Plurals",
+      content: [
+        { type: "p", text: "Arabic has three plural types: sound masculine (ون/ين), sound feminine (ات), and broken plurals, which change the word's internal pattern instead of adding an ending. Broken plurals are actually the most common type." },
+        { type: "table", headers: ["Singular", "Plural", "Meaning", "Type"], rows: [
+          ["مُسْلِم", "مُسْلِمُون", "Muslim(s)", "Sound masculine"],
+          ["مُسْلِمَة", "مُسْلِمَات", "Muslim woman/women", "Sound feminine"],
+          ["كِتَاب", "كُتُب", "book(s)", "Broken plural"],
+          ["رَجُل", "رِجَال", "man/men", "Broken plural"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "Which plural type is most common in everyday Arabic?", opts: ["Sound masculine", "Sound feminine", "Broken plural"], correct: 2 },
+        { type: "mc", q: "Plural of مُسْلِمَة (Muslim woman)?", opts: ["مُسْلِمُون", "مُسْلِمَات", "مُسْلِم"], correct: 1 }
+      ]
+    },
+    {
+      level: "Verbs", title: "The Root System",
+      content: [
+        { type: "p", text: "Almost every Arabic word is built from a root of three consonants carrying a core meaning. The root ك ت ب carries the idea of 'writing':" },
+        { type: "table", headers: ["Arabic", "Transliteration", "Meaning"], rows: [
+          ["كَتَبَ", "kataba", "he wrote"], ["يَكْتُبُ", "yaktubu", "he writes"], ["كِتَاب", "kitab", "book"],
+          ["كَاتِب", "katib", "writer"], ["مَكْتَب", "maktab", "desk, office"], ["مَكْتَبَة", "maktabah", "library"]
+        ]},
+        { type: "p", text: "Recognizing roots lets you guess meanings of unfamiliar words — the biggest vocabulary shortcut in the language." }
+      ],
+      exercises: [
+        { type: "mc", q: "Core meaning of the root ك ت ب؟", opts: ["Reading", "Writing", "Speaking"], correct: 1 },
+        { type: "mc", q: "What is مَكْتَبَة (maktabah)?", opts: ["A writer", "A library", "A book"], correct: 1 }
+      ]
+    },
+    {
+      level: "Verbs", title: "Past Tense Conjugation",
+      content: [
+        { type: "p", text: "Past tense conjugates through suffixes attached to a base form. Full conjugation of كَتَبَ (kataba, 'he wrote'):" },
+        { type: "table", headers: ["Pronoun", "Conjugation", "Meaning"], rows: [
+          ["هُوَ (he)", "كَتَبَ (kataba)", "he wrote"], ["هِيَ (she)", "كَتَبَتْ (katabat)", "she wrote"],
+          ["أَنَا (I)", "كَتَبْتُ (katabtu)", "I wrote"], ["أَنْتَ (you, m.)", "كَتَبْتَ (katabta)", "you wrote"],
+          ["نَحْنُ (we)", "كَتَبْنَا (katabna)", "we wrote"], ["هُم (they, m.)", "كَتَبُوا (katabu)", "they wrote"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "How do you say 'I wrote'?", opts: ["kataba", "katabtu", "katabat"], correct: 1 },
+        { type: "mc", q: "What stays fixed across every conjugation?", opts: ["The ending", "The three root letters", "The pronoun"], correct: 1 },
+        { type: "wordbank", prompt: "Translate: 'She wrote' (hiya katabat)",
+          bank: ["هِيَ", "كَتَبَتْ", "هُوَ", "كَتَبَ"], correctOrder: ["هِيَ", "كَتَبَتْ"] }
+      ]
+    },
+    {
+      level: "Verbs", title: "Present Tense Conjugation",
+      content: [
+        { type: "p", text: "The present tense uses a prefix (and sometimes a suffix) around a present-tense stem." },
+        { type: "table", headers: ["Pronoun", "Conjugation", "Meaning"], rows: [
+          ["هُوَ (he)", "يَكْتُبُ (yaktubu)", "he writes"], ["هِيَ (she)", "تَكْتُبُ (taktubu)", "she writes"],
+          ["أَنَا (I)", "أَكْتُبُ (aktubu)", "I write"], ["نَحْنُ (we)", "نَكْتُبُ (naktubu)", "we write"],
+          ["هُم (they, m.)", "يَكْتُبُونَ (yaktubuna)", "they write"]
+        ]},
+        { type: "p", text: "The prefixes ي / ت / أ / ن (he-she/you-I-we) appear across every regular verb in the present tense." }
+      ],
+      exercises: [
+        { type: "mc", q: "What prefix marks 'I' in the present tense?", opts: ["ي", "ت", "أ"], correct: 2 },
+        { type: "mc", q: "How do you say 'she writes'?", opts: ["yaktubu", "taktubu", "aktubu"], correct: 1 }
+      ]
+    },
+    {
+      level: "Verbs", title: "Negation",
+      content: [
+        { type: "p", text: "Different negation words are used depending on the tense." },
+        { type: "table", headers: ["Word", "Used with", "Example", "Meaning"], rows: [
+          ["لَا (la)", "Present tense", "لَا أَفْهَمُ", "I don't understand"],
+          ["لَمْ (lam)", "Past tense", "لَمْ أَذْهَبْ", "I didn't go"],
+          ["لَنْ (lan)", "Future tense", "لَنْ أَذْهَبَ", "I will not go"],
+          ["لَيْسَ (laysa)", "Nominal sentences", "البَيْتُ لَيْسَ كَبِيرًا", "The house is not big"]
+        ]}
+      ],
+      exercises: [
+        { type: "mc", q: "Which word negates a present-tense verb?", opts: ["لَمْ", "لَا", "لَيْسَ"], correct: 1 },
+        { type: "mc", q: "Which word means 'is not' in nominal sentences?", opts: ["لَنْ", "لَيْسَ", "لَمْ"], correct: 1 },
+        { type: "wordbank", prompt: "Translate: 'I don't understand' (la afhamu)",
+          bank: ["لَا", "أَفْهَمُ", "لَمْ", "أَذْهَبْ"], correctOrder: ["لَا", "أَفْهَمُ"] }
+      ]
+    },
+    {
+      level: "Verbs", title: "Question Words",
+      content: [
+        { type: "p", text: "The core question words you'll need constantly." },
+        { type: "vocab", items: [
+          { ar: "مَاذَا", en: "madha — what" }, { ar: "مَنْ", en: "man — who" },
+          { ar: "مَتَى", en: "mata — when" }, { ar: "أَيْنَ", en: "ayna — where" },
+          { ar: "كَيْفَ", en: "kayfa — how" }, { ar: "لِمَاذَا", en: "limadha — why" },
+          { ar: "هَلْ", en: "hal — yes/no question marker" }
+        ]},
+        { type: "p", text: "هَلْ marks a yes/no question at the very start of a sentence — هَلْ أَنْتَ طَالِبٌ؟ ('Are you a student?')." }
+      ],
+      exercises: [
+        { type: "mc", q: "What does أَيْنَ (ayna) ask?", opts: ["When", "Where", "Why"], correct: 1 },
+        { type: "mc", q: "What does هَلْ at the start of a sentence signal?", opts: ["Past tense", "A yes/no question", "Negation"], correct: 1 },
+        { type: "wordbank", prompt: "Build: 'Are you a student?' (hal anta talibun)",
+          bank: ["هَلْ", "أَنْتَ", "طَالِبٌ", "أَيْنَ"], correctOrder: ["هَلْ", "أَنْتَ", "طَالِبٌ"] }
+      ]
+    }
+  ];
+
+  var VOCAB = {
+    "Pronouns": [
+      { glyph: "أَنَا", translit: "ana", meaning: "I" }, { glyph: "أَنْتَ", translit: "anta", meaning: "you (to a man)" },
+      { glyph: "أَنْتِ", translit: "anti", meaning: "you (to a woman)" }, { glyph: "هُوَ", translit: "huwa", meaning: "he" },
+      { glyph: "هِيَ", translit: "hiya", meaning: "she" }, { glyph: "نَحْنُ", translit: "nahnu", meaning: "we" },
+      { glyph: "هُمْ", translit: "hum", meaning: "they" }
+    ],
+    "Common Nouns": [
+      { glyph: "اللّٰه", translit: "Allah", meaning: "Allah (God)" }, { glyph: "رَبّ", translit: "rabb", meaning: "Lord" },
+      { glyph: "رَحْمَة", translit: "rahmah", meaning: "mercy" }, { glyph: "كِتَاب", translit: "kitab", meaning: "book" },
+      { glyph: "يَوْم", translit: "yawm", meaning: "day" }, { glyph: "أَرْض", translit: "ard", meaning: "earth" },
+      { glyph: "سَمَاء", translit: "sama'", meaning: "sky, heaven" }, { glyph: "قَلْب", translit: "qalb", meaning: "heart" },
+      { glyph: "نَفْس", translit: "nafs", meaning: "soul, self" }, { glyph: "إِنْسَان", translit: "insan", meaning: "human being" },
+      { glyph: "نُور", translit: "nur", meaning: "light" }, { glyph: "عِلْم", translit: "'ilm", meaning: "knowledge" },
+      { glyph: "حَقّ", translit: "haqq", meaning: "truth" }, { glyph: "جَنَّة", translit: "jannah", meaning: "paradise" },
+      { glyph: "نَار", translit: "nar", meaning: "fire" }
+    ],
+    "Common Verbs": [
+      { glyph: "قَالَ", translit: "qala", meaning: "he said" }, { glyph: "كَانَ", translit: "kana", meaning: "he was" },
+      { glyph: "جَعَلَ", translit: "ja'ala", meaning: "he made" }, { glyph: "عَلِمَ", translit: "'alima", meaning: "he knew" },
+      { glyph: "آمَنَ", translit: "amana", meaning: "he believed" }, { glyph: "عَمِلَ", translit: "'amila", meaning: "he did, worked" },
+      { glyph: "خَلَقَ", translit: "khalaqa", meaning: "he created" }, { glyph: "رَزَقَ", translit: "razaqa", meaning: "he provided" },
+      { glyph: "غَفَرَ", translit: "ghafara", meaning: "he forgave" }, { glyph: "هَدَى", translit: "hada", meaning: "he guided" }
+    ],
+    "Descriptions of Allah": [
+      { glyph: "رَحِيم", translit: "rahim", meaning: "especially merciful" }, { glyph: "عَظِيم", translit: "'azim", meaning: "great, mighty" },
+      { glyph: "كَرِيم", translit: "karim", meaning: "generous, noble" }, { glyph: "عَلِيم", translit: "'alim", meaning: "all-knowing" },
+      { glyph: "حَكِيم", translit: "hakim", meaning: "wise" }, { glyph: "قَدِير", translit: "qadir", meaning: "all-capable" },
+      { glyph: "غَفُور", translit: "ghafur", meaning: "all-forgiving" }
+    ]
+  };
+
+  var BADGES = [
+    { id: "first", icon: "🌱", label: "First Lesson", test: function(s){ return s.lessonsDone >= 1; } },
+    { id: "streak3", icon: "🔥", label: "3-Day Streak", test: function(s){ return s.streak >= 3; } },
+    { id: "streak7", icon: "⚡", label: "7-Day Streak", test: function(s){ return s.streak >= 7; } },
+    { id: "half", icon: "🌗", label: "Halfway There", test: function(s){ return s.lessonsDone >= Math.ceil(LESSONS.length / 2); } },
+    { id: "complete", icon: "🏆", label: "Course Complete", test: function(s){ return s.lessonsDone >= LESSONS.length; } },
+    { id: "xp500", icon: "💎", label: "500 XP", test: function(s){ return s.xp >= 500; } }
+  ];
+
+  // =====================================================================
+  // STATE
+  // =====================================================================
+  var KEYS = { progress: "noor_arabic_progress_v1", xp: "noor_arabic_xp_v2", streak: "noor_arabic_streak_v1", weak: "noor_arabic_weak_v1" };
+
+  function getProgress(){ try{ return JSON.parse(localStorage.getItem(KEYS.progress) || "{}"); }catch(e){ return {}; } }
+  function getXp(){ return parseInt(localStorage.getItem(KEYS.xp) || "0", 10); }
+  function addXp(n){ var x = getXp() + n; try{ localStorage.setItem(KEYS.xp, String(x)); }catch(e){} return x; }
+  function getStreakData(){
+    try{ return JSON.parse(localStorage.getItem(KEYS.streak) || "null") || { count: 0, lastDate: null }; }
+    catch(e){ return { count: 0, lastDate: null }; }
+  }
+  function todayStr(){ var d = new Date(); return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate(); }
+  function bumpStreak(){
+    var data = getStreakData();
+    var today = todayStr();
+    if(data.lastDate === today) return data.count; // already counted today
+    var yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    var yStr = yesterday.getFullYear() + "-" + (yesterday.getMonth()+1) + "-" + yesterday.getDate();
+    data.count = (data.lastDate === yStr) ? data.count + 1 : 1;
+    data.lastDate = today;
+    try{ localStorage.setItem(KEYS.streak, JSON.stringify(data)); }catch(e){}
+    return data.count;
+  }
+  function getWeakWords(){ try{ return JSON.parse(localStorage.getItem(KEYS.weak) || "[]"); }catch(e){ return []; } }
+  function markWeak(meaning){
+    var w = getWeakWords();
+    if(w.indexOf(meaning) === -1) w.push(meaning);
+    try{ localStorage.setItem(KEYS.weak, JSON.stringify(w)); }catch(e){}
+  }
+  function clearWeak(meaning){
+    var w = getWeakWords().filter(function(m){ return m !== meaning; });
+    try{ localStorage.setItem(KEYS.weak, JSON.stringify(w)); }catch(e){}
+  }
+
+  function isLessonUnlocked(idx){
+    if(idx === 0) return true;
+    var p = getProgress();
+    return !!p[idx - 1];
+  }
+
+  function refreshHeaderStats(){
+    document.getElementById("xpStat").textContent = getXp();
+    document.getElementById("streakStat").textContent = getStreakData().count;
+    var p = getProgress();
+    var done = Object.keys(p).filter(function(k){ return p[k]; }).length;
+    document.getElementById("progressFill").style.width = Math.round((done / LESSONS.length) * 100) + "%";
+    document.getElementById("progressLabel").textContent = done + " of " + LESSONS.length + " lessons complete";
+    renderBadges();
+  }
+
+  function renderBadges(){
+    var p = getProgress();
+    var done = Object.keys(p).filter(function(k){ return p[k]; }).length;
+    var stats = { lessonsDone: done, streak: getStreakData().count, xp: getXp() };
+    document.getElementById("badgeGrid").innerHTML = BADGES.map(function(b){
+      var earned = b.test(stats);
+      return '<div class="badge' + (earned ? " earned" : "") + '"><span class="icon">' + b.icon + '</span><span>' + b.label + '</span></div>';
+    }).join("");
+  }
+
+  // =====================================================================
+  // PATH RENDERING
+  // =====================================================================
+  var pathContainer = document.getElementById("pathContainer");
+
+  function renderPath(){
+    var progress = getProgress();
+    var levels = [];
+    LESSONS.forEach(function(l, i){
+      var group = levels.find(function(g){ return g.name === l.level; });
+      if(!group){ group = { name: l.level, items: [] }; levels.push(group); }
+      group.items.push({ lesson: l, index: i });
+    });
+
+    var html = "";
+    levels.forEach(function(group){
+      html += '<div class="path-level-label">' + group.name + '</div>';
+      group.items.forEach(function(item, gi){
+        var done = !!progress[item.index];
+        var unlocked = isLessonUnlocked(item.index);
+        var offsetClass = gi % 3 === 1 ? "offset-left" : (gi % 3 === 2 ? "offset-right" : "");
+        var cls = done ? "done" : (unlocked ? "" : "locked");
+        html += '<div class="path-node-row ' + offsetClass + '">' +
+          '<button class="path-node ' + cls + '" data-i="' + item.index + '" ' + (unlocked ? "" : "disabled") + '>' +
+          (done ? '<span class="star">⭐</span>' : "") +
+          '<span class="num">' + (done ? "&#10003;" : (unlocked ? (item.index + 1) : "&#128274;")) + '</span>' +
+          '</button></div>' +
+          '<div class="path-node-label">' + item.lesson.title + '</div>';
+      });
+    });
+    pathContainer.innerHTML = html;
+  }
+
+  pathContainer.addEventListener("click", function(e){
+    var btn = e.target.closest(".path-node");
+    if(!btn || btn.disabled) return;
+    openLesson(parseInt(btn.getAttribute("data-i"), 10));
+  });
+
+  // =====================================================================
+  // LESSON DETAIL (teaching content, then "Start Exercises")
+  // =====================================================================
+  var lessonDetailEl = document.getElementById("lessonDetail");
+  var exerciseScreenEl = document.getElementById("exerciseScreen");
+
+  function renderBlock(block){
+    if(block.type === "p") return "<p>" + block.text + "</p>";
+    if(block.type === "table"){
+      var thead = "<tr>" + block.headers.map(function(h){ return "<th>" + h + "</th>"; }).join("") + "</tr>";
+      var rows = block.rows.map(function(row){
+        return "<tr>" + row.map(function(cell, ci){
+          var h = block.headers[ci];
+          var isAr = ["Isolated","Initial","Medial","Final","Arabic","Mark","Numeral","Written","Singular","Plural","Conjugation","Word","Example","Letter"].indexOf(h) !== -1;
+          return "<td" + (isAr ? ' class="ar"' : "") + ">" + cell + "</td>";
+        }).join("") + "</tr>";
+      }).join("");
+      return '<table class="example-table"><thead>' + thead + '</thead><tbody>' + rows + '</tbody></table>';
+    }
+    if(block.type === "vocab"){
+      return block.items.map(function(item){
+        return '<div class="vocab-mini"><span class="ar">' + item.ar + '</span><span class="en">' + item.en + '</span></div>';
+      }).join("");
+    }
+    return "";
+  }
+
+  function openLesson(idx){
+    var lesson = LESSONS[idx];
+    lessonDetailEl.innerHTML =
+      '<button class="back-to-list" id="backToListBtn">&larr; All lessons</button>' +
+      '<div class="lesson-title">Lesson ' + (idx + 1) + ': ' + lesson.title + '</div>' +
+      '<div class="lesson-content">' + lesson.content.map(renderBlock).join("") + '</div>' +
+      '<button class="primary" id="startExercisesBtn">Start Exercises (' + lesson.exercises.length + ')</button>';
+
+    document.getElementById("view-path").style.display = "none";
+    document.getElementById("view-vocab").classList.remove("active");
+    lessonDetailEl.style.display = "block";
+
+    document.getElementById("backToListBtn").addEventListener("click", function(){
+      lessonDetailEl.style.display = "none";
+      document.getElementById("view-path").style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    document.getElementById("startExercisesBtn").addEventListener("click", function(){
+      lessonDetailEl.style.display = "none";
+      runExercises(idx);
+    });
+  }
+
+  // =====================================================================
+  // EXERCISE RUNNER (hearts, mixed exercise types)
+  // =====================================================================
+  function runExercises(idx){
+    var lesson = LESSONS[idx];
+    var exercises = shuffle(lesson.exercises);
+    var current = 0;
+    var hearts = 5;
+    var earnedXp = 0;
+
+    exerciseScreenEl.style.display = "block";
+
+    function renderExercise(){
+      var ex = exercises[current];
+      var bodyHtml = "";
+
+      if(ex.type === "mc"){
+        bodyHtml = '<div class="ex-prompt">' + ex.q + '</div>' +
+          ex.opts.map(function(o, oi){
+            return '<button type="button" class="mc-opt" data-oi="' + oi + '">' + o + '</button>';
+          }).join("");
+      } else if(ex.type === "wordbank"){
+        bodyHtml = '<div class="ex-prompt">' + ex.prompt + '</div>' +
+          '<div class="wb-answer" id="wbAnswer"></div>' +
+          '<div class="wb-bank" id="wbBank">' +
+          shuffle(ex.bank).map(function(w, wi){
+            return '<button type="button" class="wb-tile" data-word="' + w + '" data-wi="' + wi + '">' + w + '</button>';
+          }).join("") + '</div>';
+      }
+
+      exerciseScreenEl.innerHTML =
+        '<div class="exercise-header">' +
+          '<span class="hearts">' + "❤️".repeat(hearts) + "🖤".repeat(5 - hearts) + '</span>' +
+          '<div class="ex-progress"><div class="ex-progress-fill" style="width:' + Math.round((current / exercises.length) * 100) + '%;"></div></div>' +
+        '</div>' +
+        '<div class="exercise-card">' + bodyHtml + '<div class="ex-feedback" id="exFeedback"></div></div>' +
+        (ex.type === "wordbank" ? '<button class="primary" id="checkAnswerBtn" disabled>Check</button>' : "");
+
+      if(ex.type === "mc"){
+        var answered = false;
+        exerciseScreenEl.querySelectorAll(".mc-opt").forEach(function(btn){
+          btn.addEventListener("click", function(){
+            if(answered) return;
+            answered = true;
+            var oi = parseInt(btn.getAttribute("data-oi"), 10);
+            handleAnswer(oi === ex.correct, function(){
+              btn.classList.add(oi === ex.correct ? "correct" : "wrong");
+              if(oi !== ex.correct){
+                exerciseScreenEl.querySelectorAll(".mc-opt")[ex.correct].classList.add("correct");
+              }
+            });
+          });
+        });
+      } else if(ex.type === "wordbank"){
+        var built = [];
+        var wbAnswer = document.getElementById("wbAnswer");
+        var checkBtn = document.getElementById("checkAnswerBtn");
+
+        function refreshAnswerArea(){
+          wbAnswer.innerHTML = built.map(function(w, i){
+            return '<span class="wb-tile" data-remove="' + i + '">' + w + '</span>';
+          }).join("");
+          checkBtn.disabled = built.length === 0;
+        }
+        exerciseScreenEl.querySelectorAll(".wb-tile[data-word]").forEach(function(tile){
+          tile.addEventListener("click", function(){
+            if(tile.classList.contains("used")) return;
+            built.push(tile.getAttribute("data-word"));
+            tile.classList.add("used");
+            refreshAnswerArea();
+          });
+        });
+        wbAnswer.addEventListener("click", function(e){
+          var span = e.target.closest("[data-remove]");
+          if(!span) return;
+          var removeIdx = parseInt(span.getAttribute("data-remove"), 10);
+          built.splice(removeIdx, 1);
+          refreshAnswerArea();
+          exerciseScreenEl.querySelectorAll(".wb-tile[data-word]").forEach(function(t){ t.classList.remove("used"); });
+          built.forEach(function(word){
+            var match = Array.prototype.filter.call(exerciseScreenEl.querySelectorAll(".wb-tile[data-word]"), function(t){
+              return t.getAttribute("data-word") === word && !t.classList.contains("used");
+            })[0];
+            if(match) match.classList.add("used");
+          });
+        });
+        checkBtn.addEventListener("click", function(){
+          checkBtn.disabled = true;
+          var correct = built.length === ex.correctOrder.length && built.every(function(w, i){ return w === ex.correctOrder[i]; });
+          handleAnswer(correct, function(){});
+        });
+      }
+    }
+
+    function handleAnswer(correct, onShown){
+      var feedback = document.getElementById("exFeedback");
+      if(correct){
+        earnedXp += 10;
+        feedback.textContent = "Correct! +10 XP";
+        feedback.className = "ex-feedback show correct";
+      } else {
+        hearts--;
+        feedback.textContent = "Not quite — take another look above.";
+        feedback.className = "ex-feedback show wrong";
+      }
+      if(onShown) onShown();
+
+      setTimeout(function(){
+        if(hearts <= 0){
+          showOutOfHearts(idx);
+          return;
+        }
+        current++;
+        if(current >= exercises.length){
+          finishLesson(idx, earnedXp);
+        } else {
+          renderExercise();
+        }
+      }, 1100);
+    }
+
+    renderExercise();
+  }
+
+  function showOutOfHearts(idx){
+    exerciseScreenEl.innerHTML =
+      '<div class="result-screen">' +
+      '<div class="big-icon">💔</div>' +
+      '<h2>Out of hearts</h2>' +
+      '<p style="opacity:0.7; font-size:0.9rem;">No worries — take another look at the lesson and try again.</p>' +
+      '<button class="primary" id="retryLessonBtn">Review Lesson Again</button>' +
+      '</div>';
+    document.getElementById("retryLessonBtn").addEventListener("click", function(){
+      exerciseScreenEl.style.display = "none";
+      openLesson(idx);
+    });
+  }
+
+  function finishLesson(idx, earnedXp){
+    var p = getProgress();
+    var wasAlreadyDone = !!p[idx];
+    p[idx] = true;
+    try{ localStorage.setItem(KEYS.progress, JSON.stringify(p)); }catch(e){}
+    var bonusXp = wasAlreadyDone ? 0 : 50;
+    var totalXp = addXp(earnedXp + bonusXp);
+    var streak = bumpStreak();
+
+    exerciseScreenEl.innerHTML =
+      '<div class="result-screen">' +
+      '<div class="big-icon">🎉</div>' +
+      '<h2>Lesson Complete!</h2>' +
+      '<div class="result-stats">' +
+        '<div><div class="val">+' + earnedXp + (bonusXp ? ' +' + bonusXp : '') + '</div><div class="lbl">XP earned</div></div>' +
+        '<div><div class="val">🔥 ' + streak + '</div><div class="lbl">Day streak</div></div>' +
+      '</div>' +
+      '<button class="primary" id="continueBtn">Continue</button>' +
+      '</div>';
+
+    document.getElementById("continueBtn").addEventListener("click", function(){
+      exerciseScreenEl.style.display = "none";
+      document.getElementById("view-path").style.display = "block";
+      renderPath();
+      refreshHeaderStats();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  // =====================================================================
+  // VOCAB DRILL (with weak-word spaced repetition)
+  // =====================================================================
+  var els = {
+    vocabCatNav: document.getElementById("vocabCatNav"),
+    flashList: document.getElementById("flashList"),
+    quizWord: document.getElementById("quizWord"),
+    quizTranslit: document.getElementById("quizTranslit"),
+    quizOptions: document.getElementById("quizOptions"),
+    drillScore: document.getElementById("drillScore"),
+    nextQuestionBtn: document.getElementById("nextQuestionBtn")
+  };
+  var vocabCats = Object.keys(VOCAB);
+  var currentVocabCat = 0;
+
+  function renderVocabNav(){
+    els.vocabCatNav.innerHTML = vocabCats.map(function(c, i){
+      return '<button data-i="' + i + '" class="' + (i === currentVocabCat ? "active" : "") + '">' + c + '</button>';
+    }).join("");
+  }
+  function renderFlashList(){
+    var words = VOCAB[vocabCats[currentVocabCat]];
+    els.flashList.innerHTML = words.map(function(w){
+      return '<div class="flash-card"><div class="glyph">' + w.glyph + '</div><div class="translit">' + w.translit + '</div>' +
+        '<div class="meaning">' + w.meaning + '</div><div class="hint">tap to reveal</div></div>';
+    }).join("");
+  }
+  els.vocabCatNav.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-i]");
+    if(!btn) return;
+    currentVocabCat = parseInt(btn.getAttribute("data-i"), 10);
+    renderVocabNav(); renderFlashList();
+  });
+  els.flashList.addEventListener("click", function(e){
+    var card = e.target.closest(".flash-card");
+    if(card) card.classList.toggle("flipped");
+  });
+
+  var allVocabWords = [];
+  Object.keys(VOCAB).forEach(function(cat){ VOCAB[cat].forEach(function(w){ allVocabWords.push(w); }); });
+  var drillScore = { correct: 0, total: 0 };
+
+  function newDrillQuestion(){
+    var weak = getWeakWords();
+    var weakPool = allVocabWords.filter(function(w){ return weak.indexOf(w.meaning) !== -1; });
+    var correctWord = (weakPool.length && Math.random() < 0.6)
+      ? weakPool[Math.floor(Math.random() * weakPool.length)]
+      : allVocabWords[Math.floor(Math.random() * allVocabWords.length)];
+    var wrongs = shuffle(allVocabWords.filter(function(w){ return w.meaning !== correctWord.meaning; })).slice(0, 3);
+    var options = shuffle([correctWord].concat(wrongs));
+    els.quizWord.textContent = correctWord.glyph;
+    els.quizTranslit.textContent = correctWord.translit;
+    els.quizOptions.innerHTML = options.map(function(o){
+      return '<button type="button" class="mc-opt" data-meaning="' + o.meaning + '">' + o.meaning + '</button>';
+    }).join("");
+    els.quizOptions.setAttribute("data-correct", correctWord.meaning);
+    els.quizOptions.setAttribute("data-answered", "false");
+  }
+  els.quizOptions.addEventListener("click", function(e){
+    var btn = e.target.closest(".mc-opt");
+    if(!btn || els.quizOptions.getAttribute("data-answered") === "true") return;
+    els.quizOptions.setAttribute("data-answered", "true");
+    var correct = els.quizOptions.getAttribute("data-correct");
+    var chosen = btn.getAttribute("data-meaning");
+    drillScore.total++;
+    if(chosen === correct){ drillScore.correct++; btn.classList.add("correct"); clearWeak(correct); addXp(2); }
+    else{
+      btn.classList.add("wrong"); markWeak(correct);
+      Array.prototype.forEach.call(els.quizOptions.children, function(b){
+        if(b.getAttribute("data-meaning") === correct) b.classList.add("correct");
+      });
+    }
+    els.drillScore.textContent = "Score: " + drillScore.correct + " / " + drillScore.total;
+    refreshHeaderStats();
+  });
+  els.nextQuestionBtn.addEventListener("click", newDrillQuestion);
+  renderVocabNav();
+  renderFlashList();
+
+  // =====================================================================
+  // VIEW TOGGLE + INIT
+  // =====================================================================
+  document.querySelectorAll(".view-toggle button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".view-toggle button").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      lessonDetailEl.style.display = "none";
+      exerciseScreenEl.style.display = "none";
+      document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); v.style.display = "none"; });
+      var target = document.getElementById("view-" + btn.getAttribute("data-view"));
+      target.classList.add("active");
+      target.style.display = "block";
+      if(btn.getAttribute("data-view") === "vocab" && els.quizOptions.children.length === 0){
+        newDrillQuestion();
+      }
+    });
+  });
+
+  renderPath();
+  refreshHeaderStats();
+
+  try{
+    var prefs = JSON.parse(localStorage.getItem("noor_prefs_v1") || "{}");
+    if(prefs.theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
+  }catch(e){}
+</script>
+</body>
+</html>
